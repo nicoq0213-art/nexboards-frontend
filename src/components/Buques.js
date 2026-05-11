@@ -13,18 +13,11 @@ function fmt(n) {
   return Math.round(n).toLocaleString("es-AR");
 }
 
-const AVISO_PERM = (
-  <div style={{ fontSize: 11, color: "#888", background: "#f9f9f9", border: "0.5px solid #e8e8e8", borderRadius: 6, padding: "6px 10px", marginBottom: 12 }}>
-    Datos del puerto total — el filtro por permisionario aplica en el módulo Permisionarios.
-  </div>
-);
-
 export default function Buques({ data, filtros = {} }) {
   if (!data) return <div className="loading">Cargando buques...</div>;
 
   const { trafico, arboladura } = data;
-  const traficoFiltro = filtros.trafico       || [];
-  const permFiltro    = filtros.permisionario  || "";
+  const traficoFiltro = filtros.trafico || [];
 
   const TRAFICO_ITEMS = [
     { label: "Ultramar", key: "ultramar" },
@@ -63,8 +56,6 @@ export default function Buques({ data, filtros = {} }) {
 
   return (
     <div>
-      {permFiltro && AVISO_PERM}
-
       <div className="sec">Por tipo de tráfico</div>
       <div className="kpi-grid" style={{ marginBottom: 14 }}>
         {traficoVisible.map(t => (

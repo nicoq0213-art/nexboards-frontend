@@ -14,18 +14,11 @@ function fmt(n) {
 function _safe(v) { return (v === null || v === undefined) ? 0 : Number(v) || 0; }
 function _var(a, b) { return a > 0 ? ((b - a) / a * 100) : 0; }
 
-const AVISO_PERM = (
-  <div style={{ fontSize: 11, color: "#888", background: "#f9f9f9", border: "0.5px solid #e8e8e8", borderRadius: 6, padding: "6px 10px", marginBottom: 12 }}>
-    Datos del puerto total — el filtro por permisionario aplica en el módulo Permisionarios.
-  </div>
-);
-
 export default function Comparativo({ data, filtros = {} }) {
   if (!data) return <div className="loading">Cargando comparativo...</div>;
 
   const { por_mes, totales } = data;
-  const mesesFiltro = filtros.meses        || [];
-  const permFiltro  = filtros.permisionario || "";
+  const mesesFiltro = filtros.meses || [];
 
   const meses = (por_mes || []).filter(r =>
     mesesFiltro.length === 0 || mesesFiltro.includes(r.mes)
@@ -105,8 +98,6 @@ export default function Comparativo({ data, filtros = {} }) {
 
   return (
     <div>
-      {permFiltro && AVISO_PERM}
-
       <div className="sec">Año anterior vs año actual</div>
       <div className="chart-box">
         <div className="chart-title">Toneladas mensuales comparadas</div>

@@ -22,11 +22,11 @@ function Var({ val }) {
   );
 }
 
-const AVISO_PERM = (
-  <div style={{ fontSize: 11, color: "#888", background: "#f9f9f9", border: "0.5px solid #e8e8e8", borderRadius: 6, padding: "6px 10px", marginBottom: 12 }}>
-    Datos del puerto total — el filtro por permisionario aplica en el módulo Permisionarios.
-  </div>
-);
+const OPS = [
+  { key: "importacion", label: "Importación" },
+  { key: "exportacion", label: "Exportación" },
+  { key: "removido",    label: "Removido"    },
+];
 
 export default function Resumen({ data, filtros = {} }) {
   if (!data) return <div className="loading">Cargando resumen...</div>;
@@ -35,37 +35,53 @@ export default function Resumen({ data, filtros = {} }) {
 
   const mesesFiltro = filtros.meses       || [];
   const operFiltro  = filtros.operaciones  || [];
-  const permFiltro  = filtros.permisionario || "";
 
+  // Filtrar meses
   const evolucion = (evolucion_mensual || []).filter(r =>
     mesesFiltro.length === 0 || mesesFiltro.includes(r.mes)
   );
 
-  // Recompute mercaderías from filtered months when month filter is active
-  // (requires backend to include importacion/exportacion/removido per month)
-  const hasMesFiltro      = mesesFiltro.length > 0;
-  const hasMonthBreakdown = evolucion.length > 0 && evolucion[0].importacion !== undefined;
+  // Detectar si el backend envía breakdown por operación en cada mes
+  const hasBreakdown = evolucion.length > 0 && evolucion[0].importacion !== undefined;
 
-  const merc = hasMesFiltro && hasMonthBreakdown ? {
-    importacion: evolucion.reduce((s, r) => s + (Number(r.importacion) || 0), 0),
-    exportacion: evolucion.reduce((s, r) => s + (Number(r.exportacion) || 0), 0),
-    removido:    evolucion.reduce((s, r) => s + (Number(r.removido)    || 0), 0),
-    total:       evolucion.reduce((s, r) => s + (Number(r.toneladas)   || 0), 0),
-    var_pct:     null,
-  } : mercaderias;
-
-  // Filter which operation KPI cards to show
-  const OPS = [
-    { key: "importacion", label: "Importación" },
-    { key: "exportacion", label: "Exportación" },
-    { key: "removido",    label: "Removido"    },
-  ];
+  // Ops a mostrar según filtro
   const opsVisible = operFiltro.length === 0 ? OPS : OPS.filter(op => operFiltro.includes(op.label));
+
+  // Valores por operación: desde meses filtrados si hay breakdown, si no desde totales anuales
+  const opValues = hasBreakdown
+    ? {
+        importacion: evolucion.reduce((s, r) => s + (Number(r.importacion) || 0), 0),
+        exportacion: evolucion.reduce((s, r) => s + (Number(r.exportacion) || 0), 0),
+        removido:    evolucion.reduce((s, r) => s + (Number(r.removido)    || 0), 0),
+      }
+    : {
+        importacion: mercaderias?.importacion || 0,
+        exportacion: mercaderias?.exportacion || 0,
+        removido:    mercaderias?.removido    || 0,
+      };
+
+  // Total: suma de las ops seleccionadas
+  const totalMostrar = opsVisible.reduce((s, op) => s + (Number(opValues[op.key]) || 0), 0)
+    || (mesesFiltro.length > 0
+        ? evolucion.reduce((s, r) => s + (Number(r.toneladas) || 0), 0)
+        : mercaderias?.total || 0);
+
+  const labelTotal = operFiltro.length > 0
+    ? opsVisible.map(o => o.label).join(" + ")
+    : (mesesFiltro.length > 0 ? "Total período" : "Total acumulado");
+
+  // Gráfico: suma de ops seleccionadas por mes
+  const chartValues = evolucion.map(r => {
+    if (hasBreakdown && operFiltro.length > 0) {
+      return Math.round(opsVisible.reduce((s, op) => s + (Number(r[op.key]) || 0), 0) / 1000);
+    }
+    return Math.round((Number(r.toneladas) || 0) / 1000);
+  });
 
   const chartData = {
     labels: evolucion.map(r => r.mes),
     datasets: [{
-      data: evolucion.map(r => Math.round((Number(r.toneladas) || 0) / 1000)),
+      data: chartValues,
       backgroundColor: "#185FA5",
       borderRadius: 4,
       borderSkipped: false,
@@ -86,20 +102,18 @@ export default function Resumen({ data, filtros = {} }) {
 
   return (
     <div>
-      {permFiltro && AVISO_PERM}
-
       <div className="sec">Mercaderías</div>
       <div className="kpi-grid">
         <div className="kpi-card">
-          <div className="kpi-label">{hasMesFiltro ? "Total período" : "Total acumulado"}</div>
-          <div className="kpi-value">{fmt(merc?.total)}</div>
+          <div className="kpi-label">{labelTotal}</div>
+          <div className="kpi-value">{fmt(totalMostrar)}</div>
           <div className="kpi-unit">toneladas</div>
-          {!hasMesFiltro && <Var val={merc?.var_pct} />}
+          {operFiltro.length === 0 && mesesFiltro.length === 0 && <Var val={mercaderias?.var_pct} />}
         </div>
         {opsVisible.map(op => (
           <div className="kpi-card" key={op.key}>
             <div className="kpi-label">{op.label}</div>
-            <div className="kpi-value">{fmt(merc?.[op.key])}</div>
+            <div className="kpi-value">{fmt(opValues[op.key])}</div>
             <div className="kpi-unit">toneladas</div>
           </div>
         ))}
@@ -107,7 +121,11 @@ export default function Resumen({ data, filtros = {} }) {
 
       <div className="divider" />
       <div className="chart-box">
-        <div className="chart-title">Toneladas totales por mes</div>
+        <div className="chart-title">
+          {operFiltro.length > 0
+            ? `${opsVisible.map(o => o.label).join(" + ")} — toneladas por mes`
+            : "Toneladas totales por mes"}
+        </div>
         {evolucion.length > 0
           ? <Bar data={chartData} options={chartOptions} height={160} />
           : <div className="loading">Sin datos para el período seleccionado.</div>}
