@@ -1,31 +1,25 @@
 const BASE_URL = "https://web-production-93fa6.up.railway.app";
 
-export async function fetchDashboard() {
-  const res = await fetch(`${BASE_URL}/dashboard`);
-  return res.json();
+async function _get(endpoint) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 15000);
+  try {
+    const res = await fetch(`${BASE_URL}${endpoint}`, { signal: controller.signal });
+    clearTimeout(timer);
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.detail || `Error ${res.status}`);
+    }
+    return res.json();
+  } catch (e) {
+    clearTimeout(timer);
+    throw e;
+  }
 }
 
-export async function fetchResumen() {
-  const res = await fetch(`${BASE_URL}/resumen`);
-  return res.json();
-}
-
-export async function fetchBuques() {
-  const res = await fetch(`${BASE_URL}/buques`);
-  return res.json();
-}
-
-export async function fetchCargas() {
-  const res = await fetch(`${BASE_URL}/cargas`);
-  return res.json();
-}
-
-export async function fetchComparativo() {
-  const res = await fetch(`${BASE_URL}/comparativo`);
-  return res.json();
-}
-
-export async function fetchPermisionarios() {
-  const res = await fetch(`${BASE_URL}/permisionarios`);
-  return res.json();
-}
+export function fetchDashboard()      { return _get("/dashboard"); }
+export function fetchResumen()        { return _get("/resumen"); }
+export function fetchBuques()         { return _get("/buques"); }
+export function fetchCargas()         { return _get("/cargas"); }
+export function fetchComparativo()    { return _get("/comparativo"); }
+export function fetchPermisionarios() { return _get("/permisionarios"); }

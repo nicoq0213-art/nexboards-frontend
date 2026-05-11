@@ -7,8 +7,6 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend, Filler);
 
-const MESES = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
-
 function fmt(n) {
   if (!n) return "0";
   if (n >= 1000000) return (n / 1000000).toFixed(2) + "M";

@@ -7,8 +7,6 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
-const MESES = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
-
 function fmt(n, tipo) {
   if (!n && n !== 0) return "0";
   if (tipo === "entero") return Math.round(n).toLocaleString("es-AR");

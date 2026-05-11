@@ -26,8 +26,12 @@ export default function App() {
     setLoading(true);
     fetchDashboard()
       .then(d => { setDatos(d); setLoading(false); })
-      .catch(() => {
-        setError("No se pudo conectar con el servidor. Verificá que el backend esté corriendo.");
+      .catch(err => {
+        setError(
+          err.name === "AbortError"
+            ? "El servidor tardó demasiado en responder. Recargá la página."
+            : err.message || "No se pudo conectar con el servidor."
+        );
         setLoading(false);
       });
   }, []);
