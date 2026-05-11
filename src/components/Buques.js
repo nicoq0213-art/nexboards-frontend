@@ -65,6 +65,7 @@ export default function Buques({ data }) {
 
       <div className="divider" />
       <div className="sec">Detalle por arboladura</div>
+      <div style={{ overflowX: "auto" }}>
       <table className="arb-table">
         <thead>
           <tr><th>Tipo de buque</th><th>Cantidad</th><th>TRN</th></tr>
@@ -84,6 +85,7 @@ export default function Buques({ data }) {
           </tr>
         </tbody>
       </table>
+      </div>
 
       <div className="divider" />
       <div className="chart-box">
