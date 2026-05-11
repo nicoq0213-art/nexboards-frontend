@@ -6,6 +6,6 @@ COPY . .
 
 RUN npm install && npm run build
 
-EXPOSE 3000
+EXPOSE $PORT
 
-CMD ["npx", "serve", "-s", "build", "-l", "3000"]
+CMD ["sh", "-c", "npx serve -s build -l $PORT"]
