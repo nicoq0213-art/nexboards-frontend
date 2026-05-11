@@ -1,9 +1,6 @@
 import React from "react";
 import { Bar } from "react-chartjs-2";
-import {
-  Chart as ChartJS, CategoryScale, LinearScale,
-  BarElement, Tooltip, Legend
-} from "chart.js";
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Tooltip, Legend } from "chart.js";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
@@ -11,7 +8,7 @@ function fmt(n, tipo) {
   if (!n && n !== 0) return "0";
   if (tipo === "entero") return Math.round(n).toLocaleString("es-AR");
   if (n >= 1000000) return (n / 1000000).toFixed(2) + "M";
-  if (n >= 1000) return (n / 1000).toFixed(0) + "k";
+  if (n >= 1000)    return (n / 1000).toFixed(0) + "k";
   return Math.round(n).toLocaleString("es-AR");
 }
 
@@ -25,17 +22,18 @@ function Var({ val }) {
   );
 }
 
-export default function Resumen({ data }) {
+export default function Resumen({ data, filtros = {} }) {
   if (!data) return <div className="loading">Cargando resumen...</div>;
 
   const { mercaderias, contenedores, navegacion, evolucion_mensual } = data;
 
-  const labels = evolucion_mensual
-    ? evolucion_mensual.map(r => r.mes)
-    : [];
-  const valores = evolucion_mensual
-    ? evolucion_mensual.map(r => Math.round((r.toneladas || 0) / 1000))
-    : [];
+  const mesesFiltro = filtros.meses || [];
+  const evolucion = (evolucion_mensual || []).filter(r =>
+    mesesFiltro.length === 0 || mesesFiltro.includes(r.mes)
+  );
+
+  const labels  = evolucion.map(r => r.mes);
+  const valores = evolucion.map(r => Math.round((r.toneladas || 0) / 1000));
 
   const chartData = {
     labels,
@@ -44,16 +42,19 @@ export default function Resumen({ data }) {
       backgroundColor: "#185FA5",
       borderRadius: 4,
       borderSkipped: false,
-    }]
+    }],
   };
 
   const chartOptions = {
     responsive: true,
-    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${ctx.parsed.y}k tn` } } },
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => `${ctx.parsed.y}k tn` } },
+    },
     scales: {
       x: { grid: { display: false }, ticks: { font: { size: 10 }, color: "#aaa" } },
-      y: { grid: { color: "#f0f0f0" }, ticks: { font: { size: 10 }, color: "#aaa", callback: v => `${v}k` }, border: { display: false } }
-    }
+      y: { grid: { color: "#f0f0f0" }, ticks: { font: { size: 10 }, color: "#aaa", callback: v => `${v}k` }, border: { display: false } },
+    },
   };
 
   return (
@@ -86,7 +87,9 @@ export default function Resumen({ data }) {
       <div className="divider" />
       <div className="chart-box">
         <div className="chart-title">Toneladas totales por mes</div>
-        <Bar data={chartData} options={chartOptions} height={160} />
+        {evolucion.length > 0
+          ? <Bar data={chartData} options={chartOptions} height={160} />
+          : <div className="loading">Sin datos para el período seleccionado.</div>}
       </div>
 
       <div className="divider" />

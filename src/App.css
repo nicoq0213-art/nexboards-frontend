@@ -200,3 +200,50 @@ body {
 /* ── LOADING / ERROR ── */
 .loading { text-align: center; padding: 40px; color: #aaa; font-size: 13px; }
 .error { text-align: center; padding: 20px; color: #c0392b; font-size: 12px; background: #fdf0f0; border-radius: 8px; margin: 10px; }
+
+/* ── LOGIN ── */
+.login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f0f2f5; padding: 20px; }
+.login-card { background: #fff; border-radius: 16px; padding: 32px 24px; width: 100%; max-width: 340px; box-shadow: 0 4px 24px rgba(0,0,0,.10); text-align: center; }
+.login-logo { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; margin-bottom: 12px; }
+.login-title { font-size: 18px; font-weight: 600; color: #1A4F8A; margin-bottom: 2px; }
+.login-sub { font-size: 11px; color: #888; margin-bottom: 24px; }
+.login-form { display: flex; flex-direction: column; gap: 10px; }
+.login-input { padding: 10px 12px; border: 0.5px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; transition: border-color .15s; width: 100%; }
+.login-input:focus { border-color: #1E7BC4; }
+.login-btn { padding: 11px; background: #1A4F8A; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; transition: background .15s; }
+.login-btn:hover:not(:disabled) { background: #1E7BC4; }
+.login-btn:disabled { opacity: .5; cursor: default; }
+.login-error { font-size: 12px; color: #c0392b; background: #fdf0f0; border-radius: 6px; padding: 8px 10px; text-align: left; }
+
+/* ── ADMIN ── */
+.admin-title { font-size: 12px; font-weight: 600; color: #111; margin-bottom: 6px; }
+.admin-desc { font-size: 11px; color: #888; margin-bottom: 12px; line-height: 1.5; }
+.admin-form { display: flex; flex-direction: column; gap: 8px; }
+.admin-file-label { display: flex; align-items: center; justify-content: center; padding: 10px; border: 1px dashed #ccc; border-radius: 8px; font-size: 12px; color: #888; cursor: pointer; transition: border-color .15s; }
+.admin-file-label:hover { border-color: #1E7BC4; color: #1E7BC4; }
+.admin-filename { font-size: 12px; color: #1A4F8A; font-weight: 500; }
+.admin-btn { padding: 10px; background: #1A4F8A; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; transition: background .15s; margin-top: 4px; }
+.admin-btn:hover:not(:disabled) { background: #1E7BC4; }
+.admin-btn:disabled { opacity: .5; cursor: default; }
+.admin-msg { font-size: 12px; padding: 8px 10px; border-radius: 6px; margin-top: 10px; }
+.admin-msg.ok  { background: #f0faf4; color: #1a7a4a; }
+.admin-msg.err { background: #fdf0f0; color: #c0392b; }
+.admin-user-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 11px; background: #f5f7fa; border-radius: 8px; margin-bottom: 6px; }
+.admin-user-name { font-size: 12px; font-weight: 500; color: #111; }
+.admin-user-sub { font-size: 10px; color: #aaa; margin-top: 1px; }
+.admin-del { background: none; border: none; color: #bbb; cursor: pointer; font-size: 14px; padding: 2px 6px; border-radius: 4px; transition: color .15s; }
+.admin-del:hover { color: #c0392b; }
+
+/* ── FILTROS ── */
+.filtros-wrap { margin-bottom: 12px; }
+.filtros-toggle { display: flex; align-items: center; gap: 6px; background: #f5f7fa; border: 0.5px solid #e0e0e0; border-radius: 8px; padding: 7px 12px; font-size: 11px; color: #666; cursor: pointer; transition: all .15s; }
+.filtros-toggle:hover { border-color: #1E7BC4; color: #1E7BC4; }
+.filtros-badge { background: #1E7BC4; color: #fff; border-radius: 10px; font-size: 10px; padding: 1px 6px; font-weight: 600; }
+.filtros-panel { background: #f9f9f9; border: 0.5px solid #e8e8e8; border-radius: 10px; padding: 12px; margin-top: 8px; display: flex; flex-direction: column; gap: 10px; }
+.filtros-group { display: flex; flex-direction: column; gap: 6px; }
+.filtros-label { font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: .8px; }
+.filtros-pills { display: flex; flex-wrap: wrap; gap: 5px; }
+.filtros-pill { font-size: 11px; padding: 4px 9px; border: 0.5px solid #e0e0e0; border-radius: 6px; background: #fff; color: #666; cursor: pointer; transition: all .15s; }
+.filtros-pill.active { background: #1E7BC4; color: #fff; border-color: #1E7BC4; }
+.filtros-select { font-size: 12px; padding: 6px 8px; border: 0.5px solid #e0e0e0; border-radius: 6px; background: #fff; color: #333; outline: none; width: 100%; }
+.filtros-clear { font-size: 11px; color: #c0392b; background: none; border: none; cursor: pointer; text-align: left; padding: 0; margin-top: 2px; }

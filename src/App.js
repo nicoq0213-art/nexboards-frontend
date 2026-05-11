@@ -1,67 +1,76 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import { fetchDashboard } from "./api";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import Login from "./components/Login";
 import Resumen from "./components/Resumen";
 import Buques from "./components/Buques";
 import Cargas from "./components/Cargas";
 import Comparativo from "./components/Comparativo";
 import Permisionarios from "./components/Permisionarios";
+import Admin from "./components/Admin";
+import Filtros from "./components/Filtros";
 
 const MODULOS = [
-  { id: "resumen",        label: "Resumen ejecutivo",  icon: "⊞" },
-  { id: "buques",         label: "Buques",              icon: "⛵" },
-  { id: "cargas",         label: "Cargas",              icon: "📦" },
-  { id: "comparativo",    label: "Comparativo",         icon: "📊" },
-  { id: "permisionarios", label: "Permisionarios",      icon: "🏭" },
+  { id: "resumen",        label: "Resumen ejecutivo", icon: "⊞" },
+  { id: "buques",         label: "Buques",             icon: "⛵" },
+  { id: "cargas",         label: "Cargas",             icon: "📦" },
+  { id: "comparativo",    label: "Comparativo",        icon: "📊" },
+  { id: "permisionarios", label: "Permisionarios",     icon: "🏭" },
 ];
 
-export default function App() {
+const FILTROS_INIT = { meses: [], operaciones: [], trafico: [], cargas: [], permisionario: "" };
+
+function AppContent() {
+  const { auth, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [pagina, setPagina]     = useState("resumen");
   const [datos, setDatos]       = useState(null);
-  const [loading, setLoading]   = useState(true);
+  const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState(null);
+  const [filtros, setFiltros]   = useState(FILTROS_INIT);
 
   useEffect(() => {
+    if (!auth) return;
     setLoading(true);
+    setError(null);
     fetchDashboard()
       .then(d => { setDatos(d); setLoading(false); })
       .catch(err => {
+        if (err.status === 401) { logout(); return; }
         setError(
           err.name === "AbortError"
-            ? "El servidor tardó demasiado en responder. Recargá la página."
+            ? "El servidor tardó demasiado. Recargá la página."
             : err.message || "No se pudo conectar con el servidor."
         );
         setLoading(false);
       });
-  }, []);
+  }, [auth]);
 
-  function navegar(id) {
-    setPagina(id);
-    setMenuOpen(false);
-  }
+  if (!auth) return <Login />;
+
+  function navegar(id) { setPagina(id); setMenuOpen(false); }
 
   const periodo = (() => {
-    if (!datos) return "—";
-    const meses = datos.resumen?.evolucion_mensual;
-    if (!meses || meses.length === 0) return "—";
+    const meses = datos?.resumen?.evolucion_mensual;
+    if (!meses?.length) return "—";
     const primero = meses[0]?.mes;
     const ultimo  = meses[meses.length - 1]?.mes;
     const año = new Date().getFullYear();
     return primero === ultimo ? `${primero} ${año}` : `${primero}–${ultimo} ${año}`;
   })();
 
+  const mesesDisponibles  = datos?.resumen?.evolucion_mensual?.map(r => r.mes) || [];
+  const permisDisponibles = datos?.permisionarios?.ranking_anual?.map(p => p.empresa) || [];
+  const enModulo          = pagina !== "config";
+
   return (
     <div className="shell">
-      {/* TOPBAR */}
       <div className="topbar">
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <button className="menu-btn" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menú">☰</button>
-          <img
-            src="/logo-consorcio.jpg"
-            alt="Consorcio de Gestión del Puerto de Dock Sud"
-            style={{ width: 32, height: 32, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
-          />
+          <img src="/logo-consorcio.jpg" alt="Consorcio de Gestión del Puerto de Dock Sud"
+            style={{ width: 32, height: 32, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} />
           <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
             <span className="logo-app">Data Port</span>
             <span className="logo-sub">Puerto de Dock Sud</span>
@@ -73,52 +82,65 @@ export default function App() {
       <div className="layout">
         <div className={`overlay ${menuOpen ? "open" : ""}`} onClick={() => setMenuOpen(false)} />
 
-        {/* SIDEBAR */}
         <div className={`sidebar ${menuOpen ? "open" : ""}`}>
           <div style={{ padding: "16px 16px 12px", borderBottom: "0.5px solid #e0e0e0", display: "flex", alignItems: "center", gap: 10 }}>
-            <img
-              src="/logo-consorcio.jpg"
-              alt="Logo"
-              style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover" }}
-            />
+            <img src="/logo-consorcio.jpg" alt="Logo"
+              style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover" }} />
             <div>
               <div style={{ fontSize: 12, fontWeight: 600, color: "#1A4F8A" }}>Data Port</div>
-              <div style={{ fontSize: 10, color: "#888" }}>Puerto de Dock Sud</div>
+              <div style={{ fontSize: 10, color: "#888" }}>{auth.nombre || auth.role}</div>
             </div>
           </div>
-          <div style={{ paddingTop: 8 }}>
+          <div style={{ paddingTop: 8, flex: 1, display: "flex", flexDirection: "column" }}>
             <div className="nav-section">Módulos</div>
             {MODULOS.map(m => (
-              <div
-                key={m.id}
-                className={`nav-item ${pagina === m.id ? "active" : ""}`}
-                onClick={() => navegar(m.id)}
-              >
-                <span>{m.icon}</span>
-                {m.label}
+              <div key={m.id} className={`nav-item ${pagina === m.id ? "active" : ""}`} onClick={() => navegar(m.id)}>
+                <span>{m.icon}</span>{m.label}
               </div>
             ))}
             <div className="nav-divider" />
             <div className="nav-section">Sistema</div>
-            <div className="nav-item"><span>⚙</span> Configuración</div>
+            {auth.role === "admin" && (
+              <div className={`nav-item ${pagina === "config" ? "active" : ""}`} onClick={() => navegar("config")}>
+                <span>⚙</span> Configuración
+              </div>
+            )}
+            <div className="nav-item" onClick={logout}>
+              <span>↩</span> Cerrar sesión
+            </div>
           </div>
         </div>
 
-        {/* CONTENT */}
         <div className="content">
           {loading && <div className="loading">Cargando datos del puerto...</div>}
           {error   && <div className="error">{error}</div>}
-          {!loading && !error && datos && (
+
+          {!loading && !error && datos && enModulo && (
             <>
-              {pagina === "resumen"        && <Resumen        data={datos.resumen} />}
-              {pagina === "buques"         && <Buques         data={datos.buques} />}
-              {pagina === "cargas"         && <Cargas         data={datos.cargas} />}
-              {pagina === "comparativo"    && <Comparativo    data={datos.comparativo} />}
-              {pagina === "permisionarios" && <Permisionarios data={datos.permisionarios} />}
+              <Filtros
+                meses={mesesDisponibles}
+                permisionarios={permisDisponibles}
+                onChange={setFiltros}
+              />
+              {pagina === "resumen"        && <Resumen        data={datos.resumen}        filtros={filtros} />}
+              {pagina === "buques"         && <Buques         data={datos.buques}         filtros={filtros} />}
+              {pagina === "cargas"         && <Cargas         data={datos.cargas}         filtros={filtros} />}
+              {pagina === "comparativo"    && <Comparativo    data={datos.comparativo}    filtros={filtros} />}
+              {pagina === "permisionarios" && <Permisionarios data={datos.permisionarios} filtros={filtros} />}
             </>
           )}
+
+          {pagina === "config" && auth.role === "admin" && <Admin />}
         </div>
       </div>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }

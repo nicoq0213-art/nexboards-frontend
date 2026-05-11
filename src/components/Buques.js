@@ -6,17 +6,30 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 const COLORS = ["#185FA5","#378ADD","#85B7EB","#B5D4F4","#2E75B6","#1a4f8a","#4da8e0","#cce0f5","#042C53"];
 
+const TRAFICO_MAP = {
+  "Ultramar": "ultramar",
+  "Cabotaje": "cabotaje",
+  "CMI":      "cmi",
+};
+
 function fmt(n) {
-  if (!n) return "0";
+  if (!n && n !== 0) return "0";
   if (n >= 1000000) return (n / 1000000).toFixed(2) + "M";
-  if (n >= 1000) return Math.round(n).toLocaleString("es-AR");
+  if (n >= 1000)    return Math.round(n).toLocaleString("es-AR");
   return Math.round(n).toLocaleString("es-AR");
 }
 
-export default function Buques({ data }) {
+export default function Buques({ data, filtros = {} }) {
   if (!data) return <div className="loading">Cargando buques...</div>;
 
   const { trafico, arboladura } = data;
+  const traficoFiltro = filtros.trafico || [];
+
+  const traficoItems = [
+    { label: "Ultramar", key: "ultramar" },
+    { label: "Cabotaje", key: "cabotaje" },
+    { label: "CMI",      key: "cmi" },
+  ].filter(t => traficoFiltro.length === 0 || traficoFiltro.includes(t.label));
 
   const donaData = {
     labels: arboladura?.map(a => a.tipo) || [],
@@ -24,8 +37,8 @@ export default function Buques({ data }) {
       data: arboladura?.map(a => a.trn) || [],
       backgroundColor: COLORS,
       borderWidth: 2,
-      borderColor: "#fff"
-    }]
+      borderColor: "#fff",
+    }],
   };
 
   const donaOptions = {
@@ -38,33 +51,30 @@ export default function Buques({ data }) {
           label: ctx => {
             const tot = ctx.dataset.data.reduce((a, b) => a + b, 0);
             return ` ${ctx.label}: ${(ctx.parsed / tot * 100).toFixed(1)}%`;
-          }
-        }
-      }
-    }
+          },
+        },
+      },
+    },
   };
-
-  const maxTrn = Math.max(...(arboladura?.map(a => a.trn) || [1]));
 
   return (
     <div>
       <div className="sec">Por tipo de tráfico</div>
       <div className="kpi-grid" style={{ marginBottom: 14 }}>
-        <div className="kpi-card">
-          <div className="kpi-label">Ultramar</div>
-          <div className="kpi-value">{fmt(trafico?.ultramar?.buques)}</div>
-          <div className="kpi-unit">buques · {fmt(trafico?.ultramar?.trn)} TRN</div>
-        </div>
-        <div className="kpi-card">
-          <div className="kpi-label">Cabotaje</div>
-          <div className="kpi-value">{fmt(trafico?.cabotaje?.buques)}</div>
-          <div className="kpi-unit">buques · {fmt(trafico?.cabotaje?.trn)} TRN</div>
-        </div>
-        <div className="kpi-card kpi-full">
-          <div className="kpi-label">CMI</div>
-          <div className="kpi-value">{fmt(trafico?.cmi?.buques)}</div>
-          <div className="kpi-unit">buques · {fmt(trafico?.cmi?.trn)} TRN</div>
-        </div>
+        {traficoItems.map(t => (
+          <div key={t.key} className={`kpi-card ${traficoItems.length === 1 ? "kpi-full" : ""}`}>
+            <div className="kpi-label">{t.label}</div>
+            <div className="kpi-value">{fmt(trafico?.[t.key]?.buques)}</div>
+            <div className="kpi-unit">buques · {fmt(trafico?.[t.key]?.trn)} TRN</div>
+          </div>
+        ))}
+        {traficoFiltro.length === 0 && (
+          <div className="kpi-card kpi-full">
+            <div className="kpi-label">CMI</div>
+            <div className="kpi-value">{fmt(trafico?.cmi?.buques)}</div>
+            <div className="kpi-unit">buques · {fmt(trafico?.cmi?.trn)} TRN</div>
+          </div>
+        )}
       </div>
 
       <div className="divider" />

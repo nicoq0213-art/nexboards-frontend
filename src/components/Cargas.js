@@ -1,70 +1,82 @@
 import React from "react";
 import { Bar } from "react-chartjs-2";
-import {
-  Chart as ChartJS, CategoryScale, LinearScale,
-  BarElement, Tooltip, Legend
-} from "chart.js";
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Tooltip, Legend } from "chart.js";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
-function fmt(n) {
-  if (!n && n !== 0) return "0";
-  if (n >= 1000000) return (n / 1000000).toFixed(2) + "M";
-  if (n >= 1000) return (n / 1000).toFixed(0) + "k";
-  return Math.round(n).toLocaleString("es-AR");
-}
-
-// Mapa de corrección de tildes para nombres que vienen del backend
 const NOMBRES = {
   "Aridos": "Áridos",
   "Siderurgico / carga general": "Siderúrgico / carga general",
   "Granel liquido": "Granel líquido",
   "Granel solido": "Granel sólido",
 };
-function corregir(nombre) {
-  return NOMBRES[nombre] || nombre;
+function corregir(nombre) { return NOMBRES[nombre] || nombre; }
+
+function fmt(n) {
+  if (!n && n !== 0) return "0";
+  if (n >= 1000000) return (n / 1000000).toFixed(2) + "M";
+  if (n >= 1000)    return (n / 1000).toFixed(0) + "k";
+  return Math.round(n).toLocaleString("es-AR");
 }
 
-export default function Cargas({ data }) {
+const FORMA_MAP = {
+  "Granel líquido": ["Granel liquido", "Granel líquido"],
+  "Granel sólido":  ["Granel solido",  "Granel sólido"],
+  "Contenerizado":  ["Contenerizado"],
+  "Carga gral.":    ["Carga gral. no contenerizada"],
+};
+
+export default function Cargas({ data, filtros = {} }) {
   if (!data) return <div className="loading">Cargando cargas...</div>;
 
   const { por_producto, evolucion_mensual, por_forma } = data;
+  const mesesFiltro      = filtros.meses       || [];
+  const operFiltro       = filtros.operaciones  || [];
+  const cargasFiltro     = filtros.cargas       || [];
 
-  const maxProd = Math.max(...(por_producto?.map(p => p.toneladas) || [1]));
+  const evolucion = (evolucion_mensual || []).filter(r =>
+    mesesFiltro.length === 0 || mesesFiltro.includes(r.mes)
+  );
 
-  const labels = (evolucion_mensual || []).map(r => r.mes);
+  const DATASETS = [
+    { label: "Importación", key: "importacion", color: "#185FA5" },
+    { label: "Exportación", key: "exportacion", color: "#85B7EB" },
+    { label: "Removido",    key: "removido",    color: "#cce0f5" },
+  ].filter(d => operFiltro.length === 0 || operFiltro.includes(d.label));
+
   const chartData = {
-    labels,
-    datasets: [
-      {
-        label: "Importación",
-        data: (evolucion_mensual || []).map(r => Math.round((r.importacion || 0) / 1000)),
-        backgroundColor: "#185FA5", borderRadius: 2, stack: "s"
-      },
-      {
-        label: "Exportación",
-        data: (evolucion_mensual || []).map(r => Math.round((r.exportacion || 0) / 1000)),
-        backgroundColor: "#85B7EB", borderRadius: 2, stack: "s"
-      },
-      {
-        label: "Removido",
-        data: (evolucion_mensual || []).map(r => Math.round((r.removido || 0) / 1000)),
-        backgroundColor: "#cce0f5", borderRadius: 2, stack: "s"
-      }
-    ]
+    labels: evolucion.map(r => r.mes),
+    datasets: DATASETS.map(d => ({
+      label: d.label,
+      data: evolucion.map(r => Math.round((r[d.key] || 0) / 1000)),
+      backgroundColor: d.color,
+      borderRadius: 2,
+      stack: "s",
+    })),
   };
 
   const chartOptions = {
     responsive: true,
     plugins: {
       legend: { position: "bottom", labels: { font: { size: 10 }, color: "#666", boxWidth: 10, padding: 8 } },
-      tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y}k tn` } }
+      tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y}k tn` } },
     },
     scales: {
       x: { grid: { display: false }, ticks: { font: { size: 10 }, color: "#aaa" }, stacked: true },
-      y: { grid: { color: "#f0f0f0" }, ticks: { font: { size: 10 }, color: "#aaa", callback: v => `${v}k` }, border: { display: false }, stacked: true }
-    }
+      y: { grid: { color: "#f0f0f0" }, ticks: { font: { size: 10 }, color: "#aaa", callback: v => `${v}k` }, border: { display: false }, stacked: true },
+    },
   };
+
+  const maxProd = Math.max(...(por_producto?.map(p => p.toneladas) || [1]));
+
+  function formaVisible(forma) {
+    if (cargasFiltro.length === 0) return true;
+    const formaCorr = corregir(forma);
+    return cargasFiltro.some(f => {
+      const aliases = FORMA_MAP[f] || [f];
+      return aliases.some(a => formaCorr.toLowerCase().includes(a.toLowerCase()) || forma.toLowerCase().includes(a.toLowerCase()));
+    });
+  }
 
   return (
     <div>
@@ -78,7 +90,7 @@ export default function Cargas({ data }) {
           <div className="bar-track">
             <div className="bar-fill" style={{
               width: `${Math.round(p.toneladas / maxProd * 100)}%`,
-              background: p.toneladas / maxProd > 0.3 ? "#185FA5" : "#B5D4F4"
+              background: p.toneladas / maxProd > 0.3 ? "#185FA5" : "#B5D4F4",
             }} />
           </div>
         </div>
@@ -87,13 +99,15 @@ export default function Cargas({ data }) {
       <div className="divider" />
       <div className="chart-box">
         <div className="chart-title">Imp / Exp / Removido por mes</div>
-        <Bar data={chartData} options={chartOptions} height={180} />
+        {evolucion.length > 0 && DATASETS.length > 0
+          ? <Bar data={chartData} options={chartOptions} height={180} />
+          : <div className="loading">Sin datos para los filtros seleccionados.</div>}
       </div>
 
       <div className="divider" />
       <div className="sec">Por forma de presentación — importación</div>
       <div className="kpi-grid">
-        {(por_forma?.importacion || []).map((f, i) => (
+        {(por_forma?.importacion || []).filter(f => formaVisible(f.forma)).map((f, i) => (
           <div className="kpi-card" key={i}>
             <div className="kpi-label">{corregir(f.forma)}</div>
             <div className="kpi-value">{fmt(f.toneladas)}</div>
