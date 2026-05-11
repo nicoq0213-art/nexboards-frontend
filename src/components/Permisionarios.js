@@ -34,6 +34,7 @@ function Lista({ empresas }) {
   );
 }
 
+// Los datos ya vienen filtrados por applyFilters (ranking_anual y por_mes).
 export default function Permisionarios({ data, filtros = {} }) {
   const [vista, setVista] = useState("anual");
   const [mesIdx, setMesIdx] = useState(0);
@@ -41,36 +42,24 @@ export default function Permisionarios({ data, filtros = {} }) {
   if (!data) return <div className="loading">Cargando permisionarios...</div>;
 
   const { total_puerto, total_operadores, ranking_anual, por_mes } = data;
-  const permFiltro  = filtros.permisionario || "";
-  const mesesFiltro = filtros.meses        || [];
+  const permFiltro = filtros.permisionario || "";
 
-  const empresasAnual = permFiltro
-    ? (ranking_anual || []).filter(e => e.empresa === permFiltro)
-    : (ranking_anual || []);
+  const mesesData = por_mes || [];
+  const mesActual = mesesData[mesIdx] || mesesData[0];
 
-  const mesesData = mesesFiltro.length > 0
-    ? (por_mes || []).filter(m => mesesFiltro.includes(m.mes))
-    : (por_mes || []);
-
-  const mesActual   = mesesData[mesIdx] || mesesData[0];
+  // Empresas del mes actual: ya filtradas si hay permisionario activo
   const empresasMes = permFiltro
     ? (mesActual?.empresas || []).filter(e => e.empresa === permFiltro)
     : (mesActual?.empresas || []);
 
-  // Totales que se muestran en los cards: empresa si hay filtro, puerto si no
-  const totalAnualMostrar     = permFiltro
-    ? (empresasAnual[0]?.toneladas || 0)
-    : total_puerto;
-  const operadoresMostrar     = permFiltro ? (empresasAnual.length > 0 ? 1 : 0) : total_operadores;
-  const totalMesMostrar       = permFiltro
+  const totalMesMostrar = permFiltro
     ? (empresasMes[0]?.toneladas || 0)
     : mesActual?.total;
-  const operadoresMesMostrar  = permFiltro ? (empresasMes.length > 0 ? 1 : 0) : mesActual?.operadores;
 
   const pieData = {
-    labels: empresasAnual.map(e => e.empresa.split(" ")[0]),
+    labels: (ranking_anual || []).map(e => e.empresa.split(" ")[0]),
     datasets: [{
-      data: empresasAnual.map(e => e.toneladas),
+      data: (ranking_anual || []).map(e => e.toneladas),
       backgroundColor: COLORS,
       borderWidth: 2,
       borderColor: "#fff",
@@ -85,7 +74,7 @@ export default function Permisionarios({ data, filtros = {} }) {
         callbacks: {
           label: ctx => {
             const tot = ctx.dataset.data.reduce((a, b) => a + b, 0);
-            return ` ${empresasAnual[ctx.dataIndex]?.empresa}: ${(ctx.parsed / tot * 100).toFixed(1)}%`;
+            return ` ${(ranking_anual || [])[ctx.dataIndex]?.empresa}: ${(ctx.parsed / tot * 100).toFixed(1)}%`;
           },
         },
       },
@@ -106,15 +95,17 @@ export default function Permisionarios({ data, filtros = {} }) {
         <div>
           <div className="total-card">
             <div>
-              <div className="total-label">{permFiltro ? permFiltro : "Total puerto"}</div>
-              <div className="total-val">{fmt(totalAnualMostrar)} tn</div>
+              <div className="total-label">{permFiltro || "Total puerto"}</div>
+              <div className="total-val">{fmt(total_puerto)} tn</div>
             </div>
-            <div style={{ fontSize: 11, color: "#888" }}>{operadoresMostrar} {permFiltro ? "permisionario" : "operadores"}</div>
+            <div style={{ fontSize: 11, color: "#888" }}>
+              {total_operadores} {permFiltro ? "permisionario" : "operadores"}
+            </div>
           </div>
-          {empresasAnual.length > 0
-            ? <Lista empresas={empresasAnual} />
+          {(ranking_anual || []).length > 0
+            ? <Lista empresas={ranking_anual} />
             : <div className="loading">Sin datos para el permisionario seleccionado.</div>}
-          {empresasAnual.length > 1 && (
+          {(ranking_anual || []).length > 1 && (
             <>
               <div className="divider" />
               <div className="chart-box">
@@ -139,10 +130,12 @@ export default function Permisionarios({ data, filtros = {} }) {
             <>
               <div className="total-card">
                 <div>
-                  <div className="total-label">{mesActual?.mes}{permFiltro ? ` — ${permFiltro}` : ""}</div>
+                  <div className="total-label">{mesActual.mes}{permFiltro ? ` — ${permFiltro}` : ""}</div>
                   <div className="total-val">{fmt(totalMesMostrar)} tn</div>
                 </div>
-                <div style={{ fontSize: 11, color: "#888" }}>{operadoresMesMostrar} {permFiltro ? "permisionario" : "operadores activos"}</div>
+                <div style={{ fontSize: 11, color: "#888" }}>
+                  {permFiltro ? "1 permisionario" : `${mesActual.operadores} operadores activos`}
+                </div>
               </div>
               {empresasMes.length > 0
                 ? <Lista empresas={empresasMes} />

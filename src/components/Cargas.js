@@ -10,7 +10,7 @@ const NOMBRES = {
   "Granel liquido": "Granel líquido",
   "Granel solido": "Granel sólido",
 };
-function corregir(nombre) { return NOMBRES[nombre] || nombre; }
+function corregir(n) { return NOMBRES[n] || n; }
 
 function fmt(n) {
   if (!n && n !== 0) return "0";
@@ -19,32 +19,17 @@ function fmt(n) {
   return Math.round(n).toLocaleString("es-AR");
 }
 
-const FORMA_MAP = {
-  "Granel líquido": ["Granel liquido", "Granel líquido"],
-  "Granel sólido":  ["Granel solido",  "Granel sólido"],
-  "Contenerizado":  ["Contenerizado"],
-  "Carga gral.":    ["Carga gral. no contenerizada"],
-};
-
-// Mapa operación → clave en por_forma
-const OPER_TO_FORMA = {
-  "Importación": "importacion",
-  "Exportación": "exportacion",
-  "Removido":    "removido",
-};
-
+// Los datos ya vienen filtrados. Este componente solo renderiza.
+// filtros se usa únicamente para saber qué datasets mostrar en el chart (visual).
 export default function Cargas({ data, filtros = {} }) {
   if (!data) return <div className="loading">Cargando cargas...</div>;
 
   const { por_producto, evolucion_mensual, por_forma } = data;
-  const mesesFiltro  = filtros.meses       || [];
-  const operFiltro   = filtros.operaciones  || [];
-  const cargasFiltro = filtros.cargas       || [];
+  const operFiltro = filtros.operaciones || [];
 
-  const evolucion = (evolucion_mensual || []).filter(r =>
-    mesesFiltro.length === 0 || mesesFiltro.includes(r.mes)
-  );
+  const evolucion = evolucion_mensual || [];
 
+  // Mostrar solo los datasets de las operaciones seleccionadas (visual)
   const DATASETS = [
     { label: "Importación", key: "importacion", color: "#185FA5" },
     { label: "Exportación", key: "exportacion", color: "#85B7EB" },
@@ -76,20 +61,15 @@ export default function Cargas({ data, filtros = {} }) {
 
   const maxProd = Math.max(...(por_producto?.map(p => p.toneladas) || [1]));
 
-  function formaVisible(forma) {
-    if (cargasFiltro.length === 0) return true;
-    const formaCorr = corregir(forma);
-    return cargasFiltro.some(f => {
-      const aliases = FORMA_MAP[f] || [f];
-      return aliases.some(a => formaCorr.toLowerCase().includes(a.toLowerCase()) || forma.toLowerCase().includes(a.toLowerCase()));
-    });
-  }
-
-  // Secciones de por_forma a mostrar según filtro de operaciones
+  // Secciones de por_forma a mostrar: las que tienen datos y corresponden a ops visibles
   const FORMA_LABEL = { importacion: "importación", exportacion: "exportación", removido: "removido" };
-  const formasSections = operFiltro.length === 0
-    ? ["importacion"]
-    : operFiltro.map(o => OPER_TO_FORMA[o]).filter(Boolean);
+  const formasSections = Object.keys(por_forma || {}).filter(k => {
+    if (operFiltro.length > 0) {
+      const opMap = { importacion: "Importación", exportacion: "Exportación", removido: "Removido" };
+      if (!operFiltro.includes(opMap[k])) return false;
+    }
+    return (por_forma[k]?.length > 0);
+  });
 
   return (
     <div>
@@ -117,26 +97,21 @@ export default function Cargas({ data, filtros = {} }) {
           : <div className="loading">Sin datos para los filtros seleccionados.</div>}
       </div>
 
-      <div className="divider" />
-      {formasSections.map(secKey => {
-        const items = (por_forma?.[secKey] || []).filter(f => formaVisible(f.forma));
-        if (items.length === 0) return null;
-        return (
-          <React.Fragment key={secKey}>
-            <div className="sec">Por forma de presentación — {FORMA_LABEL[secKey]}</div>
-            <div className="kpi-grid">
-              {items.map((f, i) => (
-                <div className="kpi-card" key={i}>
-                  <div className="kpi-label">{corregir(f.forma)}</div>
-                  <div className="kpi-value">{fmt(f.toneladas)}</div>
-                  <div className="kpi-unit">toneladas</div>
-                </div>
-              ))}
-            </div>
-            <div className="divider" />
-          </React.Fragment>
-        );
-      })}
+      {formasSections.map(secKey => (
+        <React.Fragment key={secKey}>
+          <div className="divider" />
+          <div className="sec">Por forma de presentación — {FORMA_LABEL[secKey]}</div>
+          <div className="kpi-grid">
+            {(por_forma[secKey] || []).map((f, i) => (
+              <div className="kpi-card" key={i}>
+                <div className="kpi-label">{corregir(f.forma)}</div>
+                <div className="kpi-value">{fmt(f.toneladas)}</div>
+                <div className="kpi-unit">toneladas</div>
+              </div>
+            ))}
+          </div>
+        </React.Fragment>
+      ))}
     </div>
   );
 }

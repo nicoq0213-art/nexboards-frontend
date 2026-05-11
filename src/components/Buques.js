@@ -13,6 +13,8 @@ function fmt(n) {
   return Math.round(n).toLocaleString("es-AR");
 }
 
+// El filtro de tráfico es puramente visual (muestra/oculta cards).
+// Los datos de buques son anuales; no tienen desglose mensual ni de toneladas por tipo.
 export default function Buques({ data, filtros = {} }) {
   if (!data) return <div className="loading">Cargando buques...</div>;
 
