@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 
 const OPERACIONES = ["Importación", "Exportación", "Removido"];
-const TRAFICO     = ["Ultramar", "Cabotaje", "CMI"];
 const CARGAS      = ["Granel líquido", "Granel sólido", "Contenerizado", "Carga gral."];
 
 const FILTROS_INIT = {
-  meses: [], operaciones: [], trafico: [], cargas: [], permisionario: "",
+  meses: [], operaciones: [], cargas: [], permisionario: "",
 };
 
 export default function Filtros({ meses = [], permisionarios = [], onChange }) {
@@ -34,7 +33,6 @@ export default function Filtros({ meses = [], permisionarios = [], onChange }) {
   const activos =
     filtros.meses.length +
     filtros.operaciones.length +
-    filtros.trafico.length +
     filtros.cargas.length +
     (filtros.permisionario ? 1 : 0);
 
@@ -67,17 +65,6 @@ export default function Filtros({ meses = [], permisionarios = [], onChange }) {
                 <button key={o}
                   className={`filtros-pill ${filtros.operaciones.includes(o) ? "active" : ""}`}
                   onClick={() => toggle("operaciones", o)}>{o}</button>
-              ))}
-            </div>
-          </div>
-
-          <div className="filtros-group">
-            <div className="filtros-label">Tráfico</div>
-            <div className="filtros-pills">
-              {TRAFICO.map(t => (
-                <button key={t}
-                  className={`filtros-pill ${filtros.trafico.includes(t) ? "active" : ""}`}
-                  onClick={() => toggle("trafico", t)}>{t}</button>
               ))}
             </div>
           </div>

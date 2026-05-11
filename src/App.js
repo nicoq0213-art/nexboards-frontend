@@ -20,7 +20,7 @@ const MODULOS = [
   { id: "permisionarios", label: "Permisionarios",     icon: "🏭" },
 ];
 
-const FILTROS_INIT = { meses: [], operaciones: [], trafico: [], cargas: [], permisionario: "" };
+const FILTROS_INIT = { meses: [], operaciones: [], cargas: [], permisionario: "" };
 
 function AppContent() {
   const { auth, logout } = useAuth();
@@ -72,7 +72,6 @@ function AppContent() {
     filtros.permisionario ||
     filtros.meses.length > 0 ||
     filtros.operaciones.length > 0 ||
-    filtros.trafico.length > 0 ||
     filtros.cargas.length > 0
   );
 
@@ -146,7 +145,6 @@ function AppContent() {
                   {filtros.permisionario && <span><strong>{filtros.permisionario}</strong></span>}
                   {filtros.meses.length > 0 && <span>{filtros.meses.join(" · ")}</span>}
                   {filtros.operaciones.length > 0 && <span>{filtros.operaciones.join(" · ")}</span>}
-                  {filtros.trafico.length > 0 && <span>{filtros.trafico.join(" · ")}</span>}
                   {filtros.cargas.length > 0 && <span>{filtros.cargas.join(" · ")}</span>}
                 </div>
               )}

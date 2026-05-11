@@ -13,22 +13,16 @@ function fmt(n) {
   return Math.round(n).toLocaleString("es-AR");
 }
 
-// El filtro de tráfico es puramente visual (muestra/oculta cards).
-// Los datos de buques son anuales; no tienen desglose mensual ni de toneladas por tipo.
-export default function Buques({ data, filtros = {} }) {
+export default function Buques({ data }) {
   if (!data) return <div className="loading">Cargando buques...</div>;
 
   const { trafico, arboladura } = data;
-  const traficoFiltro = filtros.trafico || [];
 
-  const TRAFICO_ITEMS = [
+  const traficoVisible = [
     { label: "Ultramar", key: "ultramar" },
     { label: "Cabotaje", key: "cabotaje" },
     { label: "CMI",      key: "cmi"      },
   ];
-  const traficoVisible = traficoFiltro.length === 0
-    ? TRAFICO_ITEMS
-    : TRAFICO_ITEMS.filter(t => traficoFiltro.includes(t.label));
 
   const donaData = {
     labels: arboladura?.map(a => a.tipo) || [],
@@ -61,7 +55,7 @@ export default function Buques({ data, filtros = {} }) {
       <div className="sec">Por tipo de tráfico</div>
       <div className="kpi-grid" style={{ marginBottom: 14 }}>
         {traficoVisible.map(t => (
-          <div key={t.key} className={`kpi-card ${traficoVisible.length === 1 ? "kpi-full" : ""}`}>
+          <div key={t.key} className="kpi-card">
             <div className="kpi-label">{t.label}</div>
             <div className="kpi-value">{fmt(trafico?.[t.key]?.buques)}</div>
             <div className="kpi-unit">buques · {fmt(trafico?.[t.key]?.trn)} TRN</div>

@@ -8,7 +8,6 @@
  *   operaciones → cargas.evolucion_formas / cargas.evolucion_mensual
  *   cargas      → cargas.evolucion_formas  (S3: forma×operación×mes)
  *   permisionario → permisionarios.por_mes (empresa×mes)
- *   trafico     → buques (buques/TRN por tipo de tráfico, no toneladas)
  */
 
 const FORMA_KEY = {
@@ -126,12 +125,11 @@ export function applyFilters(datos, filtros) {
   const {
     meses        = [],
     operaciones  = [],
-    trafico      = [],
     cargas: cargasFiltro = [],
     permisionario = "",
   } = filtros;
 
-  const hasAny = !!(permisionario || meses.length || operaciones.length || trafico.length || cargasFiltro.length);
+  const hasAny = !!(permisionario || meses.length || operaciones.length || cargasFiltro.length);
   if (!hasAny) return datos;
 
   // Resolver claves activas
