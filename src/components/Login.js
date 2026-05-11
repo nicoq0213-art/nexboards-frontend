@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { loginAPI } from "../api";
 import { useAuth } from "../context/AuthContext";
+import { LOGO_SRC } from "../constants";
 
 export default function Login() {
   const { login }  = useAuth();
@@ -27,7 +28,7 @@ export default function Login() {
   return (
     <div className="login-wrap">
       <div className="login-card">
-        <img src="/logo-consorcio.jpg" alt="Puerto de Dock Sud" className="login-logo" />
+        <img src={LOGO_SRC} alt="Puerto de Dock Sud" className="login-logo" />
         <div className="login-title">Data Port</div>
         <div className="login-sub">Puerto de Dock Sud</div>
         <form onSubmit={handleSubmit} className="login-form">
@@ -56,7 +57,7 @@ export default function Login() {
             type="submit"
             disabled={loading || !user || !pass}
           >
-            {loading ? "Ingresando..." : "Ingresar"}
+            {loading ? "Ingresando…" : "Ingresar"}
           </button>
         </form>
       </div>

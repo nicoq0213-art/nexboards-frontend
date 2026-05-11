@@ -25,7 +25,7 @@ export default function Admin() {
     setUploadMsg(null);
     try {
       await uploadExcel(file);
-      setUploadMsg({ ok: true, text: "Archivo subido. Los datos se actualizarán en la próxima consulta." });
+      setUploadMsg({ ok: true, text: "Archivo subido correctamente. Los datos se actualizarán en la próxima consulta." });
       setFile(null);
     } catch (err) {
       setUploadMsg({ ok: false, text: err.message });
@@ -74,7 +74,7 @@ export default function Admin() {
               {file ? <span className="admin-filename">📄 {file.name}</span> : <span>Seleccionar archivo .xlsx</span>}
             </label>
             <button className="admin-btn" type="submit" disabled={!file || uploading}>
-              {uploading ? "Subiendo..." : "Subir archivo"}
+              {uploading ? "Subiendo…" : "Subir archivo"}
             </button>
           </form>
           {uploadMsg && <div className={`admin-msg ${uploadMsg.ok ? "ok" : "err"}`}>{uploadMsg.text}</div>}
@@ -85,7 +85,7 @@ export default function Admin() {
         <div>
           <div className="admin-title">Usuarios de lectura</div>
           {usuarios.length === 0
-            ? <div className="loading" style={{ textAlign: "left", paddingLeft: 0 }}>Sin usuarios creados.</div>
+            ? <div className="loading" style={{ textAlign: "left", paddingLeft: 0 }}>Sin usuarios registrados.</div>
             : usuarios.map(u => (
               <div className="admin-user-row" key={u.id}>
                 <div>

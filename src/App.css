@@ -201,6 +201,40 @@ body {
 .loading { text-align: center; padding: 40px; color: #aaa; font-size: 13px; }
 .error { text-align: center; padding: 20px; color: #c0392b; font-size: 12px; background: #fdf0f0; border-radius: 8px; margin: 10px; }
 
+/* ── LOADER INSTITUCIONAL ── */
+.loader-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 62vh;
+  gap: 20px;
+}
+.loader-logo {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  object-fit: cover;
+  opacity: 0.88;
+}
+.loader-ring {
+  width: 34px;
+  height: 34px;
+  border: 2.5px solid #dde8f4;
+  border-top-color: #1A4F8A;
+  border-radius: 50%;
+  animation: loader-spin 0.85s linear infinite;
+}
+@keyframes loader-spin {
+  to { transform: rotate(360deg); }
+}
+.loader-text {
+  font-size: 12px;
+  color: #999;
+  letter-spacing: 0.3px;
+  margin: 0;
+}
+
 /* ── LOGIN ── */
 .login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f0f2f5; padding: 20px; }
 .login-card { background: #fff; border-radius: 16px; padding: 32px 24px; width: 100%; max-width: 340px; box-shadow: 0 4px 24px rgba(0,0,0,.10); text-align: center; }

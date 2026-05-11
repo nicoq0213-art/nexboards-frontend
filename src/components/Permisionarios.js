@@ -39,7 +39,7 @@ export default function Permisionarios({ data, filtros = {} }) {
   const [vista, setVista] = useState("anual");
   const [mesIdx, setMesIdx] = useState(0);
 
-  if (!data) return <div className="loading">Cargando permisionarios...</div>;
+  if (!data) return <div className="loading">Cargando permisionarios…</div>;
 
   const { total_puerto, total_operadores, ranking_anual, por_mes } = data;
   const permFiltro = filtros.permisionario || "";

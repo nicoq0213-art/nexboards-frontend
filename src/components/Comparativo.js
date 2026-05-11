@@ -15,7 +15,7 @@ function safe(v) { return (v == null) ? 0 : Number(v) || 0; }
 
 // Los datos (por_mes y totales) ya vienen filtrados por applyFilters.
 export default function Comparativo({ data }) {
-  if (!data) return <div className="loading">Cargando comparativo...</div>;
+  if (!data) return <div className="loading">Cargando comparativo…</div>;
 
   const { por_mes = [], totales } = data;
 

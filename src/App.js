@@ -3,7 +3,9 @@ import "./App.css";
 import { fetchDashboard } from "./api";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { applyFilters } from "./utils/filters";
+import { LOGO_SRC } from "./constants";
 import Login from "./components/Login";
+import LoadingScreen from "./components/LoadingScreen";
 import Resumen from "./components/Resumen";
 import Buques from "./components/Buques";
 import Cargas from "./components/Cargas";
@@ -80,7 +82,7 @@ function AppContent() {
       <div className="topbar">
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <button className="menu-btn" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menú">☰</button>
-          <img src="/logo-consorcio.jpg" alt="Consorcio de Gestión del Puerto de Dock Sud"
+          <img src={LOGO_SRC} alt="Consorcio de Gestión del Puerto de Dock Sud"
             style={{ width: 32, height: 32, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} />
           <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
             <span className="logo-app">Data Port</span>
@@ -95,7 +97,7 @@ function AppContent() {
 
         <div className={`sidebar ${menuOpen ? "open" : ""}`}>
           <div style={{ padding: "16px 16px 12px", borderBottom: "0.5px solid #e0e0e0", display: "flex", alignItems: "center", gap: 10 }}>
-            <img src="/logo-consorcio.jpg" alt="Logo"
+            <img src={LOGO_SRC} alt="Logo"
               style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover" }} />
             <div>
               <div style={{ fontSize: 12, fontWeight: 600, color: "#1A4F8A" }}>Data Port</div>
@@ -123,7 +125,7 @@ function AppContent() {
         </div>
 
         <div className="content">
-          {loading && <div className="loading">Cargando datos del puerto...</div>}
+          {loading && <LoadingScreen />}
           {error   && <div className="error">{error}</div>}
 
           {!loading && !error && datos && enModulo && (

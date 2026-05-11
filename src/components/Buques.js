@@ -14,7 +14,7 @@ function fmt(n) {
 }
 
 export default function Buques({ data }) {
-  if (!data) return <div className="loading">Cargando buques...</div>;
+  if (!data) return <div className="loading">Cargando buques…</div>;
 
   const { trafico, arboladura } = data;
 

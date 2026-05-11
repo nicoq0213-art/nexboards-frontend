@@ -22,7 +22,7 @@ function fmt(n) {
 // Los datos ya vienen filtrados. Este componente solo renderiza.
 // filtros se usa únicamente para saber qué datasets mostrar en el chart (visual).
 export default function Cargas({ data, filtros = {} }) {
-  if (!data) return <div className="loading">Cargando cargas...</div>;
+  if (!data) return <div className="loading">Cargando datos de cargas…</div>;
 
   const { por_producto, evolucion_mensual, por_forma } = data;
   const operFiltro = filtros.operaciones || [];
