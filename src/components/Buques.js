@@ -6,12 +6,6 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 const COLORS = ["#185FA5","#378ADD","#85B7EB","#B5D4F4","#2E75B6","#1a4f8a","#4da8e0","#cce0f5","#042C53"];
 
-const TRAFICO_MAP = {
-  "Ultramar": "ultramar",
-  "Cabotaje": "cabotaje",
-  "CMI":      "cmi",
-};
-
 function fmt(n) {
   if (!n && n !== 0) return "0";
   if (n >= 1000000) return (n / 1000000).toFixed(2) + "M";
@@ -19,17 +13,27 @@ function fmt(n) {
   return Math.round(n).toLocaleString("es-AR");
 }
 
+const AVISO_PERM = (
+  <div style={{ fontSize: 11, color: "#888", background: "#f9f9f9", border: "0.5px solid #e8e8e8", borderRadius: 6, padding: "6px 10px", marginBottom: 12 }}>
+    Datos del puerto total — el filtro por permisionario aplica en el módulo Permisionarios.
+  </div>
+);
+
 export default function Buques({ data, filtros = {} }) {
   if (!data) return <div className="loading">Cargando buques...</div>;
 
   const { trafico, arboladura } = data;
-  const traficoFiltro = filtros.trafico || [];
+  const traficoFiltro = filtros.trafico       || [];
+  const permFiltro    = filtros.permisionario  || "";
 
-  const traficoItems = [
+  const TRAFICO_ITEMS = [
     { label: "Ultramar", key: "ultramar" },
     { label: "Cabotaje", key: "cabotaje" },
-    { label: "CMI",      key: "cmi" },
-  ].filter(t => traficoFiltro.length === 0 || traficoFiltro.includes(t.label));
+    { label: "CMI",      key: "cmi"      },
+  ];
+  const traficoVisible = traficoFiltro.length === 0
+    ? TRAFICO_ITEMS
+    : TRAFICO_ITEMS.filter(t => traficoFiltro.includes(t.label));
 
   const donaData = {
     labels: arboladura?.map(a => a.tipo) || [],
@@ -59,22 +63,17 @@ export default function Buques({ data, filtros = {} }) {
 
   return (
     <div>
+      {permFiltro && AVISO_PERM}
+
       <div className="sec">Por tipo de tráfico</div>
       <div className="kpi-grid" style={{ marginBottom: 14 }}>
-        {traficoItems.map(t => (
-          <div key={t.key} className={`kpi-card ${traficoItems.length === 1 ? "kpi-full" : ""}`}>
+        {traficoVisible.map(t => (
+          <div key={t.key} className={`kpi-card ${traficoVisible.length === 1 ? "kpi-full" : ""}`}>
             <div className="kpi-label">{t.label}</div>
             <div className="kpi-value">{fmt(trafico?.[t.key]?.buques)}</div>
             <div className="kpi-unit">buques · {fmt(trafico?.[t.key]?.trn)} TRN</div>
           </div>
         ))}
-        {traficoFiltro.length === 0 && (
-          <div className="kpi-card kpi-full">
-            <div className="kpi-label">CMI</div>
-            <div className="kpi-value">{fmt(trafico?.cmi?.buques)}</div>
-            <div className="kpi-unit">buques · {fmt(trafico?.cmi?.trn)} TRN</div>
-          </div>
-        )}
       </div>
 
       <div className="divider" />

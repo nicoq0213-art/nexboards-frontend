@@ -26,13 +26,27 @@ const FORMA_MAP = {
   "Carga gral.":    ["Carga gral. no contenerizada"],
 };
 
+// Mapa operación → clave en por_forma
+const OPER_TO_FORMA = {
+  "Importación": "importacion",
+  "Exportación": "exportacion",
+  "Removido":    "removido",
+};
+
+const AVISO_PERM = (
+  <div style={{ fontSize: 11, color: "#888", background: "#f9f9f9", border: "0.5px solid #e8e8e8", borderRadius: 6, padding: "6px 10px", marginBottom: 12 }}>
+    Datos del puerto total — el filtro por permisionario aplica en el módulo Permisionarios.
+  </div>
+);
+
 export default function Cargas({ data, filtros = {} }) {
   if (!data) return <div className="loading">Cargando cargas...</div>;
 
   const { por_producto, evolucion_mensual, por_forma } = data;
-  const mesesFiltro      = filtros.meses       || [];
-  const operFiltro       = filtros.operaciones  || [];
-  const cargasFiltro     = filtros.cargas       || [];
+  const mesesFiltro  = filtros.meses        || [];
+  const operFiltro   = filtros.operaciones   || [];
+  const cargasFiltro = filtros.cargas        || [];
+  const permFiltro   = filtros.permisionario || "";
 
   const evolucion = (evolucion_mensual || []).filter(r =>
     mesesFiltro.length === 0 || mesesFiltro.includes(r.mes)
@@ -48,7 +62,7 @@ export default function Cargas({ data, filtros = {} }) {
     labels: evolucion.map(r => r.mes),
     datasets: DATASETS.map(d => ({
       label: d.label,
-      data: evolucion.map(r => Math.round((r[d.key] || 0) / 1000)),
+      data: evolucion.map(r => Math.round((Number(r[d.key]) || 0) / 1000)),
       backgroundColor: d.color,
       borderRadius: 2,
       stack: "s",
@@ -78,8 +92,16 @@ export default function Cargas({ data, filtros = {} }) {
     });
   }
 
+  // Secciones de por_forma a mostrar según filtro de operaciones
+  const FORMA_LABEL = { importacion: "importación", exportacion: "exportación", removido: "removido" };
+  const formasSections = operFiltro.length === 0
+    ? ["importacion"]
+    : operFiltro.map(o => OPER_TO_FORMA[o]).filter(Boolean);
+
   return (
     <div>
+      {permFiltro && AVISO_PERM}
+
       <div className="sec">Por tipo de producto</div>
       {(por_producto || []).map((p, i) => (
         <div className="bar-row" key={i}>
@@ -105,16 +127,25 @@ export default function Cargas({ data, filtros = {} }) {
       </div>
 
       <div className="divider" />
-      <div className="sec">Por forma de presentación — importación</div>
-      <div className="kpi-grid">
-        {(por_forma?.importacion || []).filter(f => formaVisible(f.forma)).map((f, i) => (
-          <div className="kpi-card" key={i}>
-            <div className="kpi-label">{corregir(f.forma)}</div>
-            <div className="kpi-value">{fmt(f.toneladas)}</div>
-            <div className="kpi-unit">toneladas</div>
-          </div>
-        ))}
-      </div>
+      {formasSections.map(secKey => {
+        const items = (por_forma?.[secKey] || []).filter(f => formaVisible(f.forma));
+        if (items.length === 0) return null;
+        return (
+          <React.Fragment key={secKey}>
+            <div className="sec">Por forma de presentación — {FORMA_LABEL[secKey]}</div>
+            <div className="kpi-grid">
+              {items.map((f, i) => (
+                <div className="kpi-card" key={i}>
+                  <div className="kpi-label">{corregir(f.forma)}</div>
+                  <div className="kpi-value">{fmt(f.toneladas)}</div>
+                  <div className="kpi-unit">toneladas</div>
+                </div>
+              ))}
+            </div>
+            <div className="divider" />
+          </React.Fragment>
+        );
+      })}
     </div>
   );
 }

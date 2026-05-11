@@ -122,6 +122,16 @@ function AppContent() {
                 permisionarios={permisDisponibles}
                 onChange={setFiltros}
               />
+              {(filtros.permisionario || filtros.meses.length > 0 || filtros.operaciones.length > 0 || filtros.trafico.length > 0 || filtros.cargas.length > 0) && (
+                <div style={{ background: "#EBF4FB", borderRadius: 8, padding: "8px 12px", marginBottom: 12, fontSize: 11, color: "#1A4F8A", borderLeft: "3px solid #1E7BC4", display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+                  <span style={{ fontWeight: 600 }}>Vista filtrada:</span>
+                  {filtros.permisionario && <span><strong>{filtros.permisionario}</strong></span>}
+                  {filtros.meses.length > 0 && <span>{filtros.meses.join(" · ")}</span>}
+                  {filtros.operaciones.length > 0 && <span>{filtros.operaciones.join(" · ")}</span>}
+                  {filtros.trafico.length > 0 && <span>{filtros.trafico.join(" · ")}</span>}
+                  {filtros.cargas.length > 0 && <span>{filtros.cargas.join(" · ")}</span>}
+                </div>
+              )}
               {pagina === "resumen"        && <Resumen        data={datos.resumen}        filtros={filtros} />}
               {pagina === "buques"         && <Buques         data={datos.buques}         filtros={filtros} />}
               {pagina === "cargas"         && <Cargas         data={datos.cargas}         filtros={filtros} />}

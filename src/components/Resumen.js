@@ -22,23 +22,50 @@ function Var({ val }) {
   );
 }
 
+const AVISO_PERM = (
+  <div style={{ fontSize: 11, color: "#888", background: "#f9f9f9", border: "0.5px solid #e8e8e8", borderRadius: 6, padding: "6px 10px", marginBottom: 12 }}>
+    Datos del puerto total — el filtro por permisionario aplica en el módulo Permisionarios.
+  </div>
+);
+
 export default function Resumen({ data, filtros = {} }) {
   if (!data) return <div className="loading">Cargando resumen...</div>;
 
   const { mercaderias, contenedores, navegacion, evolucion_mensual } = data;
 
-  const mesesFiltro = filtros.meses || [];
+  const mesesFiltro = filtros.meses       || [];
+  const operFiltro  = filtros.operaciones  || [];
+  const permFiltro  = filtros.permisionario || "";
+
   const evolucion = (evolucion_mensual || []).filter(r =>
     mesesFiltro.length === 0 || mesesFiltro.includes(r.mes)
   );
 
-  const labels  = evolucion.map(r => r.mes);
-  const valores = evolucion.map(r => Math.round((r.toneladas || 0) / 1000));
+  // Recompute mercaderías from filtered months when month filter is active
+  // (requires backend to include importacion/exportacion/removido per month)
+  const hasMesFiltro      = mesesFiltro.length > 0;
+  const hasMonthBreakdown = evolucion.length > 0 && evolucion[0].importacion !== undefined;
+
+  const merc = hasMesFiltro && hasMonthBreakdown ? {
+    importacion: evolucion.reduce((s, r) => s + (Number(r.importacion) || 0), 0),
+    exportacion: evolucion.reduce((s, r) => s + (Number(r.exportacion) || 0), 0),
+    removido:    evolucion.reduce((s, r) => s + (Number(r.removido)    || 0), 0),
+    total:       evolucion.reduce((s, r) => s + (Number(r.toneladas)   || 0), 0),
+    var_pct:     null,
+  } : mercaderias;
+
+  // Filter which operation KPI cards to show
+  const OPS = [
+    { key: "importacion", label: "Importación" },
+    { key: "exportacion", label: "Exportación" },
+    { key: "removido",    label: "Removido"    },
+  ];
+  const opsVisible = operFiltro.length === 0 ? OPS : OPS.filter(op => operFiltro.includes(op.label));
 
   const chartData = {
-    labels,
+    labels: evolucion.map(r => r.mes),
     datasets: [{
-      data: valores,
+      data: evolucion.map(r => Math.round((Number(r.toneladas) || 0) / 1000)),
       backgroundColor: "#185FA5",
       borderRadius: 4,
       borderSkipped: false,
@@ -59,29 +86,23 @@ export default function Resumen({ data, filtros = {} }) {
 
   return (
     <div>
+      {permFiltro && AVISO_PERM}
+
       <div className="sec">Mercaderías</div>
       <div className="kpi-grid">
         <div className="kpi-card">
-          <div className="kpi-label">Total acumulado</div>
-          <div className="kpi-value">{fmt(mercaderias?.total)}</div>
+          <div className="kpi-label">{hasMesFiltro ? "Total período" : "Total acumulado"}</div>
+          <div className="kpi-value">{fmt(merc?.total)}</div>
           <div className="kpi-unit">toneladas</div>
-          <Var val={mercaderias?.var_pct} />
+          {!hasMesFiltro && <Var val={merc?.var_pct} />}
         </div>
-        <div className="kpi-card">
-          <div className="kpi-label">Importación</div>
-          <div className="kpi-value">{fmt(mercaderias?.importacion)}</div>
-          <div className="kpi-unit">toneladas</div>
-        </div>
-        <div className="kpi-card">
-          <div className="kpi-label">Exportación</div>
-          <div className="kpi-value">{fmt(mercaderias?.exportacion)}</div>
-          <div className="kpi-unit">toneladas</div>
-        </div>
-        <div className="kpi-card">
-          <div className="kpi-label">Removido</div>
-          <div className="kpi-value">{fmt(mercaderias?.removido)}</div>
-          <div className="kpi-unit">toneladas</div>
-        </div>
+        {opsVisible.map(op => (
+          <div className="kpi-card" key={op.key}>
+            <div className="kpi-label">{op.label}</div>
+            <div className="kpi-value">{fmt(merc?.[op.key])}</div>
+            <div className="kpi-unit">toneladas</div>
+          </div>
+        ))}
       </div>
 
       <div className="divider" />
