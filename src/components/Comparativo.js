@@ -21,7 +21,7 @@ export default function Comparativo({ data }) {
 
   const { por_mes, totales } = data;
 
-  const labels = (por_mes || []).map((_, i) => MESES[i] || "");
+  const labels = (por_mes || []).map(r => r.mes);
   const chartData = {
     labels,
     datasets: [

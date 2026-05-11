@@ -33,7 +33,7 @@ export default function Resumen({ data }) {
   const { mercaderias, contenedores, navegacion, evolucion_mensual } = data;
 
   const labels = evolucion_mensual
-    ? evolucion_mensual.map((r, i) => MESES[i] || r.mes)
+    ? evolucion_mensual.map(r => r.mes)
     : [];
   const valores = evolucion_mensual
     ? evolucion_mensual.map(r => Math.round((r.toneladas || 0) / 1000))

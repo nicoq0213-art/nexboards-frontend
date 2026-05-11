@@ -103,12 +103,12 @@ export default function Permisionarios({ data }) {
       {vista === "mensual" && (
         <div>
           <div className="mes-sel">
-            {MESES_SHORT.map((m, i) => (
+            {(por_mes || []).map((m, i) => (
               <button
                 key={i}
                 className={`mes-btn ${mesIdx === i ? "active" : ""}`}
                 onClick={() => setMesIdx(i)}
-              >{m}</button>
+              >{m.mes}</button>
             ))}
           </div>
           <div className="total-card">

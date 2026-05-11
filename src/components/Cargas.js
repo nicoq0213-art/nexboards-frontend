@@ -34,7 +34,7 @@ export default function Cargas({ data }) {
 
   const maxProd = Math.max(...(por_producto?.map(p => p.toneladas) || [1]));
 
-  const labels = (evolucion_mensual || []).map((_, i) => MESES[i] || "");
+  const labels = (evolucion_mensual || []).map(r => r.mes);
   const chartData = {
     labels,
     datasets: [
