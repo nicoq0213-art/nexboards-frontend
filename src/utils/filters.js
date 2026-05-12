@@ -175,17 +175,28 @@ export function applyFilters(datos, filtros) {
   };
 
   // ── Comparativo ──────────────────────────────────────────────────────────────
-  // Solo el filtro de meses aplica al comparativo (S8 no tiene desglose por forma/op)
   const cmpSrc = filtrarMeses(datos.comparativo?.por_mes || [], meses);
-  const cmpMa = cmpSrc.reduce((s, r) => s + safe(r.merc_ant),   0);
-  const cmpMc = cmpSrc.reduce((s, r) => s + safe(r.merc_act),   0);
-  const cmpTa = cmpSrc.reduce((s, r) => s + safe(r.teus_ant),   0);
-  const cmpTc = cmpSrc.reduce((s, r) => s + safe(r.teus_act),   0);
-  const cmpBa = cmpSrc.reduce((s, r) => s + safe(r.buques_ant), 0);
-  const cmpBc = cmpSrc.reduce((s, r) => s + safe(r.buques_act), 0);
+
+  // S8 no tiene desglose por operación/tipo/permisionario, pero filteredEvo sí.
+  // Cuando hay filtros no-meses activos, reemplazamos merc_act con filteredEvo
+  // para que la línea "Año actual" refleje el subconjunto filtrado.
+  const hasNonMesesFilter = !!(permisionario || operaciones.length > 0 || cargasFiltro.length > 0);
+  const cmpSrcFinal = hasNonMesesFilter
+    ? (() => {
+        const evoByMes = new Map(filteredEvo.map(e => [e.mes, safe(e.toneladas)]));
+        return cmpSrc.map(r => ({ ...r, merc_act: evoByMes.get(r.mes) ?? r.merc_act }));
+      })()
+    : cmpSrc;
+
+  const cmpMa = cmpSrcFinal.reduce((s, r) => s + safe(r.merc_ant),   0);
+  const cmpMc = cmpSrcFinal.reduce((s, r) => s + safe(r.merc_act),   0);
+  const cmpTa = cmpSrcFinal.reduce((s, r) => s + safe(r.teus_ant),   0);
+  const cmpTc = cmpSrcFinal.reduce((s, r) => s + safe(r.teus_act),   0);
+  const cmpBa = cmpSrcFinal.reduce((s, r) => s + safe(r.buques_ant), 0);
+  const cmpBc = cmpSrcFinal.reduce((s, r) => s + safe(r.buques_act), 0);
 
   const newComparativo = {
-    por_mes: cmpSrc,
+    por_mes: cmpSrcFinal,
     totales: {
       mercaderias: { anterior: cmpMa, actual: cmpMc, var_pct: varPct(cmpMa, cmpMc) },
       teus:        { anterior: cmpTa, actual: cmpTc, var_pct: varPct(cmpTa, cmpTc) },
