@@ -35,6 +35,7 @@ function AppContent() {
 
   useEffect(() => {
     if (!auth) return;
+    setPagina("resumen");
     setLoading(true);
     setError(null);
     fetchDashboard()
