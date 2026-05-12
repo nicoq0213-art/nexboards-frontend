@@ -45,17 +45,27 @@ async function _post(endpoint, body, contentType = "application/json") {
 
 // Auth
 export async function loginAPI(username, password) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 15000);
   const form = new URLSearchParams({ username, password });
-  const res = await fetch(`${BASE_URL}/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: form,
-  });
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw new Error(body.detail || "Credenciales incorrectas");
+  try {
+    const res = await fetch(`${BASE_URL}/login`, {
+      method: "POST",
+      signal: controller.signal,
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: form,
+    });
+    clearTimeout(timer);
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.detail || "Credenciales incorrectas");
+    }
+    return res.json();
+  } catch (e) {
+    clearTimeout(timer);
+    if (e.name === "AbortError") throw new Error("El servidor tardó demasiado. Intentá nuevamente.");
+    throw e;
   }
-  return res.json();
 }
 
 // Admin: Excel

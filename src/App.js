@@ -33,22 +33,26 @@ function AppContent() {
   const [error, setError]       = useState(null);
   const [filtros, setFiltros]   = useState(FILTROS_INIT);
 
-  useEffect(() => {
-    if (!auth) return;
-    setPagina("resumen");
+  function cargarDatos() {
     setLoading(true);
     setError(null);
     fetchDashboard()
       .then(d => { setRawData(d); setLoading(false); })
       .catch(err => {
+        setLoading(false);
         if (err.status === 401) { logout(); return; }
         setError(
           err.name === "AbortError"
-            ? "El servidor tardó demasiado. Recargá la página."
-            : err.message || "No se pudo conectar con el servidor."
+            ? "El servidor tardó demasiado. Intentá nuevamente más tarde."
+            : "No se pudo cargar la información. Intentá nuevamente más tarde."
         );
-        setLoading(false);
       });
+  }
+
+  useEffect(() => {
+    if (!auth) return;
+    setPagina("resumen");
+    cargarDatos();
   }, [auth]);
 
   if (!auth) return <Login />;
@@ -127,7 +131,24 @@ function AppContent() {
 
         <div className="content">
           {loading && <LoadingScreen />}
-          {error   && <div className="error">{error}</div>}
+          {error && (
+            <div style={{
+              display: "flex", flexDirection: "column", alignItems: "center",
+              justifyContent: "center", padding: "48px 24px", textAlign: "center", gap: 16,
+            }}>
+              <div style={{ fontSize: 32 }}>⚠️</div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: "#1A4F8A" }}>
+                No se pudo cargar la información
+              </div>
+              <div style={{ fontSize: 13, color: "#666", maxWidth: 280 }}>{error}</div>
+              <button onClick={cargarDatos} style={{
+                marginTop: 8, padding: "10px 24px", borderRadius: 8, border: "none",
+                background: "#1A4F8A", color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer",
+              }}>
+                Reintentar
+              </button>
+            </div>
+          )}
 
           {!loading && !error && datos && enModulo && (
             <>

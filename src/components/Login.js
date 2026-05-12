@@ -19,7 +19,7 @@ export default function Login() {
       const data = await loginAPI(user.trim(), pass);
       login(data.access_token, data.role, data.nombre);
     } catch (err) {
-      setError(err.message || "Credenciales incorrectas");
+      setError(err.message || "No se pudo conectar con el servidor. Intentá nuevamente más tarde.");
     } finally {
       setLoading(false);
     }
