@@ -49,7 +49,7 @@ export default function Permisionarios({ data, filtros = {} }) {
 
   // Empresas del mes actual: ya filtradas si hay permisionario activo
   const empresasMes = permFiltro
-    ? (mesActual?.empresas || []).filter(e => e.empresa === permFiltro)
+    ? (mesActual?.empresas || []).filter(e => e.empresa?.trim() === permFiltro?.trim())
     : (mesActual?.empresas || []);
 
   const totalMesMostrar = permFiltro

@@ -37,7 +37,7 @@ function buildEvo(datos, meses, opKeys, formaKeys, permisionario) {
     const src = filtrarMeses(datos.permisionarios?.por_mes || [], meses);
     return src.map(m => ({
       mes:         m.mes,
-      toneladas:   safe((m.empresas || []).find(e => e.empresa === permisionario)?.toneladas),
+      toneladas:   safe((m.empresas || []).find(e => e.empresa?.trim() === permisionario?.trim())?.toneladas),
       importacion: null,
       exportacion: null,
       removido:    null,
@@ -196,11 +196,11 @@ export function applyFilters(datos, filtros) {
   // ── Permisionarios ───────────────────────────────────────────────────────────
   const permMesSrc = filtrarMeses(datos.permisionarios?.por_mes || [], meses);
   const rankAnualFiltrado = permisionario
-    ? (datos.permisionarios?.ranking_anual || []).filter(e => e.empresa === permisionario)
+    ? (datos.permisionarios?.ranking_anual || []).filter(e => e.empresa?.trim() === permisionario?.trim())
     : datos.permisionarios?.ranking_anual;
 
   const totalPuerto = permisionario
-    ? filteredEvo.reduce((s, r) => s + safe(r.toneladas), 0)
+    ? (rankAnualFiltrado[0]?.toneladas ?? filteredEvo.reduce((s, r) => s + safe(r.toneladas), 0))
     : datos.permisionarios?.total_puerto;
 
   const newPermisionarios = {
