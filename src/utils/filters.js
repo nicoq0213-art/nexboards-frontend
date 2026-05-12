@@ -175,18 +175,30 @@ export function applyFilters(datos, filtros) {
   };
 
   // ── Comparativo ──────────────────────────────────────────────────────────────
-  const cmpSrc = filtrarMeses(datos.comparativo?.por_mes || [], meses);
+  const cmpAll = datos.comparativo?.por_mes || [];         // año completo (para el gráfico)
+  const cmpSrc = filtrarMeses(cmpAll, meses);              // filtrado por meses (para totales)
 
-  // S8 no tiene desglose por operación/tipo/permisionario, pero filteredEvo sí.
-  // Cuando hay filtros no-meses activos, reemplazamos merc_act con filteredEvo
-  // para que la línea "Año actual" refleje el subconjunto filtrado.
   const hasNonMesesFilter = !!(permisionario || operaciones.length > 0 || cargasFiltro.length > 0);
-  const cmpSrcFinal = hasNonMesesFilter
-    ? (() => {
-        const evoByMes = new Map(filteredEvo.map(e => [e.mes, safe(e.toneladas)]));
-        return cmpSrc.map(r => ({ ...r, merc_act: evoByMes.get(r.mes) ?? r.merc_act }));
-      })()
-    : cmpSrc;
+
+  // Reemplaza merc_act según el filtro activo.
+  // Para permisionario: lee directamente de permisionarios.por_mes (evita el doble-safe de filteredEvo).
+  // Para op/carga: usa filteredEvo que ya filtra esas dimensiones.
+  function patchMercAct(srcList) {
+    if (!hasNonMesesFilter) return srcList;
+    if (permisionario) {
+      const permMes = datos.permisionarios?.por_mes || [];
+      const byMes = new Map(permMes.map(m => [
+        m.mes,
+        safe((m.empresas || []).find(e => e.empresa?.trim() === permisionario?.trim())?.toneladas),
+      ]));
+      return srcList.map(r => ({ ...r, merc_act: byMes.get(r.mes) ?? 0 }));
+    }
+    const evoByMes = new Map(filteredEvo.map(e => [e.mes, safe(e.toneladas)]));
+    return srcList.map(r => ({ ...r, merc_act: evoByMes.get(r.mes) ?? r.merc_act }));
+  }
+
+  const cmpSrcFinal  = patchMercAct(cmpSrc);                               // para totales (meses filtrados)
+  const cmpChartData = permisionario ? patchMercAct(cmpAll) : cmpSrcFinal; // para gráfico (año completo si permisionario)
 
   const cmpMa = cmpSrcFinal.reduce((s, r) => s + safe(r.merc_ant),   0);
   const cmpMc = cmpSrcFinal.reduce((s, r) => s + safe(r.merc_act),   0);
@@ -196,7 +208,8 @@ export function applyFilters(datos, filtros) {
   const cmpBc = cmpSrcFinal.reduce((s, r) => s + safe(r.buques_act), 0);
 
   const newComparativo = {
-    por_mes: cmpSrcFinal,
+    por_mes:       cmpSrcFinal,   // para barras de totales (respeta meses filter)
+    por_mes_chart: cmpChartData,  // para gráfico de línea (año completo si permisionario)
     totales: {
       mercaderias: { anterior: cmpMa, actual: cmpMc, var_pct: varPct(cmpMa, cmpMc) },
       teus:        { anterior: cmpTa, actual: cmpTc, var_pct: varPct(cmpTa, cmpTc) },

@@ -17,20 +17,23 @@ function safe(v) { return (v == null) ? 0 : Number(v) || 0; }
 export default function Comparativo({ data }) {
   if (!data) return <div className="loading">Cargando comparativo…</div>;
 
-  const { por_mes = [], totales } = data;
+  const { por_mes = [], por_mes_chart, totales } = data;
+  // por_mes_chart: año completo para el gráfico (cuando hay filtro de permisionario)
+  // por_mes: filtrado por meses seleccionados, para los totales de las barras
+  const chartMes = por_mes_chart || por_mes;
 
   const chartData = {
-    labels: por_mes.map(r => r.mes),
+    labels: chartMes.map(r => r.mes),
     datasets: [
       {
         label: "Año anterior",
-        data: por_mes.map(r => Math.round(safe(r.merc_ant) / 1000)),
+        data: chartMes.map(r => Math.round(safe(r.merc_ant) / 1000)),
         borderColor: "#B5D4F4", backgroundColor: "transparent",
         borderWidth: 2, pointRadius: 3, pointBackgroundColor: "#B5D4F4", tension: 0.3,
       },
       {
         label: "Año actual",
-        data: por_mes.map(r => Math.round(safe(r.merc_act) / 1000)),
+        data: chartMes.map(r => Math.round(safe(r.merc_act) / 1000)),
         borderColor: "#185FA5", backgroundColor: "rgba(24,95,165,0.06)",
         fill: true, borderWidth: 2.5, pointRadius: 3, pointBackgroundColor: "#185FA5", tension: 0.3,
       },
