@@ -180,13 +180,24 @@ export function applyFilters(datos, filtros) {
 
   const hasNonMesesFilter = !!(permisionario || operaciones.length > 0 || cargasFiltro.length > 0);
 
+  // Lookup normalizado: busca la clave de empresas haciendo trim() en ambos lados
+  // para tolerar espacios residuales entre el dict del backend y el valor del filtro.
+  function _getEmpData() {
+    const empresasDict = datos.permisionarios?.empresas;
+    if (!empresasDict || !permisionario) return undefined;
+    console.log('[DataPort] datos.permisionarios.empresas:', empresasDict);
+    const key = Object.keys(empresasDict).find(k => k.trim() === permisionario.trim());
+    console.log('[DataPort] permisionario buscado:', JSON.stringify(permisionario), '→ clave encontrada:', JSON.stringify(key));
+    return key ? empresasDict[key] : undefined;
+  }
+
   // Reemplaza merc_ant/merc_act según el filtro activo.
   // Para permisionario: usa datos.permisionarios.empresas[nombre].por_mes (comparativo real año-sobre-año).
   // Para op/carga: usa filteredEvo que ya filtra esas dimensiones.
   function patchMercAct(srcList) {
     if (!hasNonMesesFilter) return srcList;
     if (permisionario) {
-      const empData = datos.permisionarios?.empresas?.[permisionario];
+      const empData = _getEmpData();
       if (empData?.por_mes?.length) {
         const byMes = new Map(empData.por_mes.map(m => [m.mes, {
           ant: safe(m.anio_anterior),
@@ -215,7 +226,8 @@ export function applyFilters(datos, filtros) {
   // (año completo, merc_ant = año anterior real, merc_act = año actual real).
   const cmpChartData = (() => {
     if (permisionario) {
-      const empData = datos.permisionarios?.empresas?.[permisionario];
+      const empData = _getEmpData();
+      console.log('[DataPort] cmpChartData empData:', empData);
       if (empData?.por_mes?.length) {
         return empData.por_mes.map(m => ({
           mes:        m.mes,
