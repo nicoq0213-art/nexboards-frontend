@@ -180,12 +180,24 @@ export function applyFilters(datos, filtros) {
 
   const hasNonMesesFilter = !!(permisionario || operaciones.length > 0 || cargasFiltro.length > 0);
 
-  // Reemplaza merc_act según el filtro activo.
-  // Para permisionario: lee directamente de permisionarios.por_mes (evita el doble-safe de filteredEvo).
+  // Reemplaza merc_ant/merc_act según el filtro activo.
+  // Para permisionario: usa datos.permisionarios.empresas[nombre].por_mes (comparativo real año-sobre-año).
   // Para op/carga: usa filteredEvo que ya filtra esas dimensiones.
   function patchMercAct(srcList) {
     if (!hasNonMesesFilter) return srcList;
     if (permisionario) {
+      const empData = datos.permisionarios?.empresas?.[permisionario];
+      if (empData?.por_mes?.length) {
+        const byMes = new Map(empData.por_mes.map(m => [m.mes, {
+          ant: safe(m.anio_anterior),
+          act: safe(m.anio_actual),
+        }]));
+        return srcList.map(r => {
+          const e = byMes.get(r.mes);
+          return e ? { ...r, merc_ant: e.ant, merc_act: e.act } : { ...r, merc_ant: 0, merc_act: 0 };
+        });
+      }
+      // Fallback si el backend aún no expone empresas
       const permMes = datos.permisionarios?.por_mes || [];
       const byMes = new Map(permMes.map(m => [
         m.mes,
@@ -197,8 +209,26 @@ export function applyFilters(datos, filtros) {
     return srcList.map(r => ({ ...r, merc_act: evoByMes.get(r.mes) ?? r.merc_act }));
   }
 
-  const cmpSrcFinal  = patchMercAct(cmpSrc);                               // para totales (meses filtrados)
-  const cmpChartData = permisionario ? patchMercAct(cmpAll) : cmpSrcFinal; // para gráfico (año completo si permisionario)
+  const cmpSrcFinal = patchMercAct(cmpSrc); // para totales (meses filtrados)
+
+  // Para el gráfico de línea: si hay permisionario con datos reales, construir desde empData.por_mes
+  // (año completo, merc_ant = año anterior real, merc_act = año actual real).
+  const cmpChartData = (() => {
+    if (permisionario) {
+      const empData = datos.permisionarios?.empresas?.[permisionario];
+      if (empData?.por_mes?.length) {
+        return empData.por_mes.map(m => ({
+          mes:        m.mes,
+          merc_ant:   safe(m.anio_anterior),
+          merc_act:   safe(m.anio_actual),
+          teus_ant:   0, teus_act:   0,
+          buques_ant: 0, buques_act: 0,
+        }));
+      }
+      return patchMercAct(cmpAll); // fallback: año completo con merc_act del año actual
+    }
+    return cmpSrcFinal;
+  })();
 
   const cmpMa = cmpSrcFinal.reduce((s, r) => s + safe(r.merc_ant),   0);
   const cmpMc = cmpSrcFinal.reduce((s, r) => s + safe(r.merc_act),   0);
