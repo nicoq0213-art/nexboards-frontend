@@ -1,4 +1,4 @@
-const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
+const BASE_URL = process.env.REACT_APP_API_URL || "https://web-production-a720.up.railway.app";
 
 function getToken() {
   return localStorage.getItem("nb_token");
