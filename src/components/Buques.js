@@ -4,7 +4,7 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const COLORS = ["#185FA5","#378ADD","#85B7EB","#B5D4F4","#2E75B6","#1a4f8a","#4da8e0","#cce0f5","#042C53"];
+const COLORS = ["#1B3A6B","#C9A84C","#2E5FA0","#E8D5A3","#3D7ABF","#0F2A52","#D4B06A","#A6BDD4","#8C6E32"];
 
 function fmt(n) {
   if (!n && n !== 0) return "0";

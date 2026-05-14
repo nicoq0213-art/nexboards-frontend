@@ -28,14 +28,14 @@ export default function Comparativo({ data }) {
       {
         label: "Año anterior",
         data: chartMes.map(r => Math.round(safe(r.merc_ant) / 1000)),
-        borderColor: "#B5D4F4", backgroundColor: "transparent",
-        borderWidth: 2, pointRadius: 3, pointBackgroundColor: "#B5D4F4", tension: 0.3,
+        borderColor: "#A6BDD4", backgroundColor: "transparent",
+        borderWidth: 2, pointRadius: 3, pointBackgroundColor: "#A6BDD4", tension: 0.3,
       },
       {
         label: "Año actual",
         data: chartMes.map(r => Math.round(safe(r.merc_act) / 1000)),
-        borderColor: "#185FA5", backgroundColor: "rgba(24,95,165,0.06)",
-        fill: true, borderWidth: 2.5, pointRadius: 3, pointBackgroundColor: "#185FA5", tension: 0.3,
+        borderColor: "#1B3A6B", backgroundColor: "rgba(27,58,107,0.06)",
+        fill: true, borderWidth: 2.5, pointRadius: 3, pointBackgroundColor: "#1B3A6B", tension: 0.3,
       },
     ],
   };
@@ -61,12 +61,12 @@ export default function Comparativo({ data }) {
       <div className="cmp-bar-wrap">
         <div className="cmp-bar-line">
           <span className="cmp-year">Ant.</span>
-          <div className="cmp-track"><div className="cmp-fill" style={{ width: `${Math.round(safe(ant) / max * 100)}%`, background: "#B5D4F4" }} /></div>
+          <div className="cmp-track"><div className="cmp-fill" style={{ width: `${Math.round(safe(ant) / max * 100)}%`, background: "#A6BDD4" }} /></div>
           <span className="cmp-val">{fmt(ant)}{sufijo}</span>
         </div>
         <div className="cmp-bar-line">
           <span className="cmp-year">Act.</span>
-          <div className="cmp-track"><div className="cmp-fill" style={{ width: `${Math.round(safe(act) / max * 100)}%`, background: "#185FA5" }} /></div>
+          <div className="cmp-track"><div className="cmp-fill" style={{ width: `${Math.round(safe(act) / max * 100)}%`, background: "#1B3A6B" }} /></div>
           <span className="cmp-val">{fmt(act)}{sufijo}</span>
         </div>
         <div className={`cmp-var ${safe(varPct) >= 0 ? "up" : "down"}`}>

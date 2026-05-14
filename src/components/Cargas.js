@@ -32,9 +32,9 @@ export default function Cargas({ data, filtros = {} }) {
 
   // Mostrar solo los datasets de las operaciones seleccionadas (visual)
   const DATASETS = [
-    { label: "Importación", key: "importacion", color: "#185FA5" },
-    { label: "Exportación", key: "exportacion", color: "#85B7EB" },
-    { label: "Removido",    key: "removido",    color: "#cce0f5" },
+    { label: "Importación", key: "importacion", color: "#1B3A6B" },
+    { label: "Exportación", key: "exportacion", color: "#C9A84C" },
+    { label: "Removido",    key: "removido",    color: "#E8D5A3" },
   ].filter(d => operFiltro.length === 0 || operFiltro.includes(d.label));
 
   const chartData = {
@@ -84,7 +84,7 @@ export default function Cargas({ data, filtros = {} }) {
           <div className="bar-track">
             <div className="bar-fill" style={{
               width: `${Math.round(p.toneladas / maxProd * 100)}%`,
-              background: p.toneladas / maxProd > 0.3 ? "#185FA5" : "#B5D4F4",
+              background: p.toneladas / maxProd > 0.3 ? "#1B3A6B" : "#A6BDD4",
             }} />
           </div>
         </div>
