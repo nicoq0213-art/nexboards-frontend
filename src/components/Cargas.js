@@ -5,7 +5,8 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Tooltip, Lege
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
 const NOMBRES = {
-  "Aridos": "Áridos",
+  "Graneles aridos": "Graneles áridos",
+  "Gases industriales": "Gases industriales",
   "Siderurgico / carga general": "Siderúrgico / carga general",
   "Granel liquido": "Granel líquido",
   "Granel solido": "Granel sólido",

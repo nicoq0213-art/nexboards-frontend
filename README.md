@@ -1,70 +1,67 @@
-# Getting Started with Create React App
+# NexBoards Analytics — Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Dashboard de estadísticas operativas portuarias. Construido con React + Chart.js.
 
-## Available Scripts
+## Stack
 
-In the project directory, you can run:
+- **React 19** con Create React App
+- **Chart.js 4** + react-chartjs-2 (barras, líneas, dona, torta)
+- **Nginx** (producción, vía Docker)
+- **FastAPI** como backend (ver `/backend`)
 
-### `npm start`
+## Configuración rápida
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```bash
+npm install
+npm start          # dev en http://localhost:3000
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Variables de entorno
 
-### `npm test`
+| Variable              | Default              | Descripción                   |
+|-----------------------|----------------------|-------------------------------|
+| `REACT_APP_API_URL`   | `http://localhost:8000` | URL del backend FastAPI    |
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Crear `.env.local` para sobreescribir localmente:
+```
+REACT_APP_API_URL=http://localhost:8000
+```
 
-### `npm run build`
+## Estructura
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```
+src/
+  App.js                  # Shell principal + routing + estado global
+  api.js                  # Llamadas HTTP al backend
+  constants.js            # LOGO_SRC y otras constantes globales
+  context/AuthContext.js  # Autenticación JWT (localStorage)
+  utils/filters.js        # Motor de filtros client-side
+  components/
+    Login.js
+    LoadingScreen.js
+    Filtros.js
+    Resumen.js
+    Buques.js
+    Cargas.js
+    Comparativo.js
+    Permisionarios.js
+    Admin.js
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Logo
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Reemplazar `public/logo-placeholder.png` con el logo institucional.
+Actualizar `src/constants.js` → `LOGO_SRC` con el nuevo nombre de archivo.
 
-### `npm run eject`
+## Build para producción
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```bash
+npm run build
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+O via Docker:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```bash
+docker build -t nexboards-frontend .
+docker run -p 3000:3000 -e PORT=3000 nexboards-frontend
+```

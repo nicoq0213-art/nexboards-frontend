@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -X OPTIONS \"https://web-production-93fa6.up.railway.app/dashboard\" -H \"Origin: https://web-production-d1299.up.railway.app\" -H \"Access-Control-Request-Method: GET\" -I)",
+      "Bash(curl -s -H \"Accept-Encoding: gzip\" -o /dev/null -w \"Size: %{size_download} bytes | Encoding: %{content_type}\" --compressed \"https://web-production-d1299.up.railway.app/static/js/main.9a4af378.js\")",
+      "Bash(curl -s -I -H \"Accept-Encoding: gzip\" \"https://web-production-d1299.up.railway.app/static/js/main.9a4af378.js\")",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(find \"C:/Users/nquevedo/Downloads/\" -maxdepth 1 -iname \"*.png\" -newer \"C:/Users/nquevedo/Downloads/ChatGPT Image 12 may 2026, 03_51_21 p.m..png\" 2>/dev/null | sort && echo \"---\" && ls -lt \"C:/Users/nquevedo/Downloads/\"*.png 2>/dev/null | head -10)"
+    ]
+  }
+}

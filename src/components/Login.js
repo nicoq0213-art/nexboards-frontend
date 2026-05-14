@@ -28,9 +28,9 @@ export default function Login() {
   return (
     <div className="login-wrap">
       <div className="login-card">
-        <img src={LOGO_SRC} alt="Puerto de Dock Sud" className="login-logo" />
-        <div className="login-title">Data Port</div>
-        <div className="login-sub">Puerto de Dock Sud</div>
+        <img src={LOGO_SRC} alt="Logo" className="login-logo" />
+        <div className="login-title">NexBoards Analytics</div>
+        <div className="login-sub">Puerto Ejemplo</div>
         <form onSubmit={handleSubmit} className="login-form">
           <input
             className="login-input"

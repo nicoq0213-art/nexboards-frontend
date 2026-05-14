@@ -87,11 +87,11 @@ function AppContent() {
       <div className="topbar">
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <button className="menu-btn" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menú">☰</button>
-          <img src={LOGO_SRC} alt="Consorcio de Gestión del Puerto de Dock Sud"
+          <img src={LOGO_SRC} alt="Logo organización"
             style={{ width: 32, height: 32, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} />
           <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
-            <span className="logo-app">Data Port</span>
-            <span className="logo-sub">Puerto de Dock Sud</span>
+            <span className="logo-app">NexBoards</span>
+            <span className="logo-sub">Puerto Ejemplo</span>
           </div>
         </div>
         <span className="period-badge">{periodo}</span>
@@ -105,7 +105,7 @@ function AppContent() {
             <img src={LOGO_SRC} alt="Logo"
               style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover" }} />
             <div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: "#1A4F8A" }}>Data Port</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "#1A4F8A" }}>NexBoards</div>
               <div style={{ fontSize: 10, color: "#888" }}>{auth.nombre || auth.role}</div>
             </div>
           </div>

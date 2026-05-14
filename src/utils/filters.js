@@ -185,9 +185,7 @@ export function applyFilters(datos, filtros) {
   function _getEmpData() {
     const empresasDict = datos.permisionarios?.empresas;
     if (!empresasDict || !permisionario) return undefined;
-    console.log('[DataPort] datos.permisionarios.empresas:', empresasDict);
     const key = Object.keys(empresasDict).find(k => k.trim() === permisionario.trim());
-    console.log('[DataPort] permisionario buscado:', JSON.stringify(permisionario), '→ clave encontrada:', JSON.stringify(key));
     return key ? empresasDict[key] : undefined;
   }
 
@@ -227,7 +225,6 @@ export function applyFilters(datos, filtros) {
   const cmpChartData = (() => {
     if (permisionario) {
       const empData = _getEmpData();
-      console.log('[DataPort] cmpChartData empData:', empData);
       if (empData?.por_mes?.length) {
         return empData.por_mes.map(m => ({
           mes:        m.mes,

@@ -2,7 +2,7 @@
 // Para reemplazar el logo, colocar el archivo en /public/ y actualizar esta línea.
 //
 // Especificaciones recomendadas:
-//   Archivo:     public/logo-consorcio.png
+//   Archivo:     public/logo-placeholder.png
 //   Formato:     PNG con fondo transparente
 //   Resolución:  256×256 px mínimo (se muestra en círculo de 32–58 px según lugar)
 //   Forma:       cuadrada (el CSS aplica border-radius: 50% automáticamente)
@@ -14,4 +14,4 @@
 //   - Loader institucional (58×58 px)
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const LOGO_SRC = "/logo-dataport.png";
+export const LOGO_SRC = "/logo-placeholder.png";
