@@ -13,6 +13,9 @@ import Comparativo from "./components/Comparativo";
 import Permisionarios from "./components/Permisionarios";
 import Admin from "./components/Admin";
 import Filtros from "./components/Filtros";
+import Pasajeros from "./components/Pasajeros";
+import Pesca from "./components/Pesca";
+import Granos from "./components/Granos";
 
 const MODULOS = [
   { id: "resumen",        label: "Resumen ejecutivo", icon: "⊞" },
@@ -20,6 +23,9 @@ const MODULOS = [
   { id: "cargas",         label: "Cargas",             icon: "📦" },
   { id: "comparativo",    label: "Comparativo",        icon: "📊" },
   { id: "permisionarios", label: "Permisionarios",     icon: "🏭" },
+  { id: "pasajeros",      label: "Pasajeros",          icon: "🚢" },
+  { id: "pesca",          label: "Pesca",              icon: "🐟" },
+  { id: "granos",         label: "Granos",             icon: "🌾" },
 ];
 
 const FILTROS_INIT = { meses: [], operaciones: [], cargas: [], permisionario: "" };
@@ -105,7 +111,7 @@ function AppContent() {
             <img src={LOGO_SRC} alt="Logo"
               style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover" }} />
             <div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: "#1B3A6B" }}>NexBoards</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "#1B2F4E" }}>NexBoards</div>
               <div style={{ fontSize: 10, color: "#888" }}>{auth.nombre || auth.role}</div>
             </div>
           </div>
@@ -137,13 +143,13 @@ function AppContent() {
               justifyContent: "center", padding: "48px 24px", textAlign: "center", gap: 16,
             }}>
               <div style={{ fontSize: 32 }}>⚠️</div>
-              <div style={{ fontSize: 14, fontWeight: 600, color: "#1B3A6B" }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: "#1B2F4E" }}>
                 No se pudo cargar la información
               </div>
               <div style={{ fontSize: 13, color: "#666", maxWidth: 280 }}>{error}</div>
               <button onClick={cargarDatos} style={{
                 marginTop: 8, padding: "10px 24px", borderRadius: 8, border: "none",
-                background: "#1B3A6B", color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer",
+                background: "#1B2F4E", color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer",
               }}>
                 Reintentar
               </button>
@@ -160,9 +166,9 @@ function AppContent() {
 
               {hayFiltros && (
                 <div style={{
-                  background: "#F9F5EC", borderRadius: 8, padding: "8px 12px",
-                  marginBottom: 12, fontSize: 11, color: "#1B3A6B",
-                  borderLeft: "3px solid #C9A84C",
+                  background: "#EAF6F7", borderRadius: 8, padding: "8px 12px",
+                  marginBottom: 12, fontSize: 11, color: "#1B2F4E",
+                  borderLeft: "3px solid #C0392B",
                   display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center",
                 }}>
                   <span style={{ fontWeight: 600 }}>Vista filtrada:</span>
@@ -178,6 +184,9 @@ function AppContent() {
               {pagina === "cargas"         && <Cargas         data={datos.cargas}         filtros={filtros} />}
               {pagina === "comparativo"    && <Comparativo    data={datos.comparativo}    filtros={filtros} />}
               {pagina === "permisionarios" && <Permisionarios data={datos.permisionarios} filtros={filtros} />}
+              {pagina === "pasajeros"      && <Pasajeros />}
+              {pagina === "pesca"          && <Pesca />}
+              {pagina === "granos"         && <Granos />}
             </>
           )}
 

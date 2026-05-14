@@ -34,8 +34,8 @@ export default function Comparativo({ data }) {
       {
         label: "Año actual",
         data: chartMes.map(r => Math.round(safe(r.merc_act) / 1000)),
-        borderColor: "#1B3A6B", backgroundColor: "rgba(27,58,107,0.06)",
-        fill: true, borderWidth: 2.5, pointRadius: 3, pointBackgroundColor: "#1B3A6B", tension: 0.3,
+        borderColor: "#1B2F4E", backgroundColor: "rgba(27,47,78,0.06)",
+        fill: true, borderWidth: 2.5, pointRadius: 3, pointBackgroundColor: "#1B2F4E", tension: 0.3,
       },
     ],
   };
@@ -66,7 +66,7 @@ export default function Comparativo({ data }) {
         </div>
         <div className="cmp-bar-line">
           <span className="cmp-year">Act.</span>
-          <div className="cmp-track"><div className="cmp-fill" style={{ width: `${Math.round(safe(act) / max * 100)}%`, background: "#1B3A6B" }} /></div>
+          <div className="cmp-track"><div className="cmp-fill" style={{ width: `${Math.round(safe(act) / max * 100)}%`, background: "#1B2F4E" }} /></div>
           <span className="cmp-val">{fmt(act)}{sufijo}</span>
         </div>
         <div className={`cmp-var ${safe(varPct) >= 0 ? "up" : "down"}`}>

@@ -14,4 +14,4 @@
 //   - Loader institucional (58×58 px)
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const LOGO_SRC = "/logo-placeholder.png";
+export const LOGO_SRC = "/logo-nexboards.png";
